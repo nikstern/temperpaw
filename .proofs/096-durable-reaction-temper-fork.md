@@ -30,6 +30,7 @@ upstream Temper commit before production merge or deployment.
 | Pin check | All manifests and lock entries use one fork SHA | 86 manifest pins and 44 lock entries verified | Pass |
 | Locked dependency build | Core TemperPaw crates resolve the fork SHA | `cargo check --locked -p temperpaw -p paw-codex-worker` passed | Pass |
 | Restart recovery | Pending source intent survives reconstruction and reaches target | `Payment:order-1` reached `Authorized` from startup recovery | Pass |
+| Immutable image | Image embeds the validation commit and has a stable local ID | `temperpaw-local:758b4fc9-durable-reactions` = `sha256:d8a90921b2a0e16dbefd43a4ab0290146c12d3d460ed5309aedf78b199c025b1`; `BUILD_SHA=758b4fc9` | Pass |
 
 ## What Worked
 
@@ -48,8 +49,8 @@ upstream Temper commit before production merge or deployment.
 ## Limitations
 
 - No production deployment or Genesis claim is made from this fork pin.
-- The immutable development image and ARC application-level acceptance flow are
-  recorded in later steps of backlog task 96.
+- The ARC application-level provider-free acceptance flow is recorded in a
+  later step of backlog task 96.
 
 ## What Still Doesn't Work
 
@@ -60,6 +61,7 @@ upstream Temper commit before production merge or deployment.
 
 - `scripts/pin-temper-dependencies.py`
 - `crates/temperpaw/tests/durable_reaction_recovery.rs`
+- `temperpaw-local:758b4fc9-durable-reactions`
 
 ## Architecture Diagram
 
