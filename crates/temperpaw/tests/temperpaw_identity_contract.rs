@@ -418,12 +418,18 @@ fn production_dockerfile_builds_all_required_paw_fs_wasm() {
     let root = repo_root();
     let dockerfile = fs::read_to_string(root.join("Dockerfile"))
         .expect("production Dockerfile should be readable");
+    let ci_workflow = fs::read_to_string(root.join(".github/workflows/ci.yml"))
+        .expect("CI workflow should be readable");
 
     for module in ["artifact_batch_apply", "blob_adapter", "workspace_fs"] {
         let build_directory = format!("os-apps/paw-fs/wasm/{module}");
         assert!(
             dockerfile.contains(&build_directory),
             "Dockerfile must build required paw-fs module {module}"
+        );
+        assert!(
+            ci_workflow.contains(&format!("{build_directory}/build.sh")),
+            "CI must build required paw-fs module {module}"
         );
     }
 }
