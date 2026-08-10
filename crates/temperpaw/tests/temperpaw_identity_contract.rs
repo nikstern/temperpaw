@@ -392,6 +392,10 @@ fn app_required_wasm_build_scripts_publish_module_local_artifacts() {
     let root = repo_root();
 
     for (module, script_path) in [
+        (
+            "artifact_batch_apply",
+            "os-apps/paw-fs/wasm/artifact_batch_apply/build.sh",
+        ),
         ("blob_adapter", "os-apps/paw-fs/wasm/blob_adapter/build.sh"),
         ("workspace_fs", "os-apps/paw-fs/wasm/workspace_fs/build.sh"),
     ] {
@@ -405,6 +409,21 @@ fn app_required_wasm_build_scripts_publish_module_local_artifacts() {
             script.contains(&format!("\"$SCRIPT_DIR/{module}.wasm\""))
                 || script.contains(&format!("\"$(dirname \"$0\")/{module}.wasm\"")),
             "{script_path} must copy {module}.wasm into the module directory so production target pruning does not remove the only discoverable artifact"
+        );
+    }
+}
+
+#[test]
+fn production_dockerfile_builds_all_required_paw_fs_wasm() {
+    let root = repo_root();
+    let dockerfile = fs::read_to_string(root.join("Dockerfile"))
+        .expect("production Dockerfile should be readable");
+
+    for module in ["artifact_batch_apply", "blob_adapter", "workspace_fs"] {
+        let build_directory = format!("os-apps/paw-fs/wasm/{module}");
+        assert!(
+            dockerfile.contains(&build_directory),
+            "Dockerfile must build required paw-fs module {module}"
         );
     }
 }

@@ -1,9 +1,19 @@
+# syntax=docker/dockerfile:1
+
+# Development-only amd64 validation image. Dashboard and WASM assets are
+# architecture-neutral and come from an already-built image of the same commit;
+# the server and runtime layers are still built for linux/amd64.
+ARG ASSET_IMAGE=temperpaw-local:validation-assets
+ARG ASSET_PLATFORM=linux/arm64
+
 FROM node:22-bookworm AS dashboard-build
 WORKDIR /app/dashboard
 COPY dashboard/package*.json ./
 RUN npm install
 COPY dashboard ./
 RUN npm run build
+
+FROM --platform=${ASSET_PLATFORM} ${ASSET_IMAGE} AS validation-assets
 
 FROM rust:1.94-bookworm AS rust-build
 RUN apt-get update && apt-get install -y libclang-dev cmake libz3-dev && rm -rf /var/lib/apt/lists/*
@@ -21,22 +31,6 @@ ENV CARGO_BUILD_JOBS=2
 ENV BUILD_VERSION=${BUILD_VERSION}
 ENV BUILD_SHA=${BUILD_SHA}
 RUN cargo build -p temperpaw --release --bin temperpaw-server
-# Build WASM modules for os-apps (requires wasm32 targets)
-RUN rustup target add wasm32-unknown-unknown wasm32-wasip1
-RUN cd os-apps/paw-agent/wasm && bash build.sh \
-    && cd /app/os-apps/paw-channels/wasm && bash build.sh \
-    && cd /app/os-apps/paw-fs/wasm/artifact_batch_apply && bash build.sh \
-    && cd /app/os-apps/paw-fs/wasm/blob_adapter && bash build.sh \
-    && cd /app/os-apps/paw-fs/wasm/workspace_fs && bash build.sh \
-    && cd /app/os-apps/paw-ingest/wasm && bash build.sh \
-    && cd /app/os-apps/paw-managed-agents/wasm && bash build.sh \
-    && cd /app/os-apps/paw-media/wasm && bash build.sh \
-    && cd /app/os-apps/paw-foresight/wasm && bash build.sh \
-    && cd /app/os-apps/paw-skills/wasm && bash build.sh \
-    && cd /app/os-apps/paw-research/wasm && bash build.sh \
-    && cd /app/os-apps/paw-patrol/wasm && bash build.sh
-RUN bash scripts/verify_route_message_wasm.sh /app/os-apps/paw-channels/wasm/route_message/route_message.wasm
-RUN find os-apps -type d -name target -prune -exec rm -rf {} +
 
 FROM debian:bookworm-slim
 ARG TARGETARCH
@@ -56,8 +50,8 @@ ARG BUILD_VERSION=dev
 ARG BUILD_SHA=unknown
 WORKDIR /app
 COPY --from=rust-build /app/target/release/temperpaw-server ./temperpaw
-COPY --from=rust-build /app/dashboard/build ./dashboard/build
-COPY --from=rust-build /app/os-apps ./os-apps
+COPY --from=validation-assets /app/dashboard/build ./dashboard/build
+COPY --from=validation-assets /app/os-apps ./os-apps
 COPY scripts/temperpaw-entrypoint.sh ./scripts/temperpaw-entrypoint.sh
 COPY scripts/datadog_railway_capability_check.sh ./scripts/datadog_railway_capability_check.sh
 RUN chmod +x ./scripts/temperpaw-entrypoint.sh

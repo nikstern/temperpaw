@@ -1,0 +1,10 @@
+# syntax=docker/dockerfile:1
+ARG SERVER_IMAGE=temperpaw-local:validation-server
+ARG SERVER_PLATFORM=linux/amd64
+ARG ASSET_IMAGE=temperpaw-local:validation-assets
+ARG ASSET_PLATFORM=linux/arm64
+
+FROM --platform=${ASSET_PLATFORM} ${ASSET_IMAGE} AS validation-assets
+FROM --platform=${SERVER_PLATFORM} ${SERVER_IMAGE}
+COPY --from=validation-assets /app/dashboard/build ./dashboard/build
+COPY --from=validation-assets /app/os-apps ./os-apps

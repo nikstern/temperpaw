@@ -7,5 +7,7 @@ dashboard/.svelte-kit
 dashboard/build
 .env
 .proofs
+scripts/build-validation-amd64-image.sh
+scripts/rebind-validation-assets.sh
 .wrangler
 tmp_*.log
