@@ -3,6 +3,7 @@ use std::{
     collections::BTreeSet,
     fs,
     path::{Path, PathBuf},
+    process::Command,
 };
 
 fn repo_root() -> std::path::PathBuf {
@@ -151,6 +152,61 @@ fn temper_dependencies_use_one_fork_and_revision() {
     assert!(
         locked_temper_sources > 10,
         "contract must inspect resolved Temper sources in checked-in lockfiles"
+    );
+}
+
+#[test]
+fn temper_dependency_pin_helper_updates_short_manifest_and_full_lock_revisions() {
+    let fixture = tempfile::tempdir().expect("temporary dependency-pin fixture");
+    fs::write(
+        fixture.path().join("Cargo.toml"),
+        r#"[dependencies]
+temper-server = { git = "https://github.com/nerdsane/temper.git", rev = "deadbeef" }
+temper-runtime = { git = "https://github.com/nerdsane/temper.git", branch = "main" }
+"#,
+    )
+    .expect("fixture manifest");
+    fs::write(
+        fixture.path().join("Cargo.lock"),
+        r#"[[package]]
+name = "temper-server"
+source = "git+https://github.com/nerdsane/temper.git?rev=deadbeef#deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+"#,
+    )
+    .expect("fixture lockfile");
+
+    let revision = "9a2bf1fa1f1688b4818d6b7e2a3e82449245a0e8";
+    let helper = repo_root().join("scripts/pin-temper-dependencies.py");
+    let update = Command::new("python3")
+        .arg(&helper)
+        .args(["nikstern/temper", revision, "--root"])
+        .arg(fixture.path())
+        .output()
+        .expect("pin helper should run");
+    assert!(
+        update.status.success(),
+        "pin helper failed: {}",
+        String::from_utf8_lossy(&update.stderr)
+    );
+
+    let manifest = fs::read_to_string(fixture.path().join("Cargo.toml")).expect("updated manifest");
+    assert_eq!(manifest.matches("rev = \"9a2bf1fa\"").count(), 2);
+    assert!(manifest.contains("https://github.com/nikstern/temper.git"));
+    let lockfile = fs::read_to_string(fixture.path().join("Cargo.lock")).expect("updated lockfile");
+    assert!(lockfile.contains(&format!(
+        "git+https://github.com/nikstern/temper.git?rev=9a2bf1fa#{revision}"
+    )));
+
+    let check = Command::new("python3")
+        .arg(helper)
+        .args(["nikstern/temper", revision, "--check", "--root"])
+        .arg(fixture.path())
+        .output()
+        .expect("pin helper check should run");
+    assert!(
+        check.status.success(),
+        "pin helper check failed: {}",
+        String::from_utf8_lossy(&check.stderr)
     );
 }
 
