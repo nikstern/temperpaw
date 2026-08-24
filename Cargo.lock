@@ -6354,6 +6354,7 @@ dependencies = [
  "temper-platform",
  "temper-runtime",
  "temper-server",
+ "temper-spec",
  "temper-store-postgres",
  "temper-store-turso",
  "tempfile",
