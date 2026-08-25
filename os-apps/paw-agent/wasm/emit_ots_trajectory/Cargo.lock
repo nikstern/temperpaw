@@ -502,7 +502,7 @@ dependencies = [
 [[package]]
 name = "temper-ots"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=9a2bf1fa#9a2bf1fa1f1688b4818d6b7e2a3e82449245a0e8"
+source = "git+https://github.com/nikstern/temper.git?rev=086c6ff2#086c6ff2bd0feb6ce88b373921caab58291843a6"
 dependencies = [
  "chrono",
  "serde",
@@ -514,7 +514,7 @@ dependencies = [
 [[package]]
 name = "temper-runtime"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=9a2bf1fa#9a2bf1fa1f1688b4818d6b7e2a3e82449245a0e8"
+source = "git+https://github.com/nikstern/temper.git?rev=086c6ff2#086c6ff2bd0feb6ce88b373921caab58291843a6"
 dependencies = [
  "anyhow",
  "chrono",
@@ -530,7 +530,7 @@ dependencies = [
 [[package]]
 name = "temper-wasm-sdk"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=9a2bf1fa#9a2bf1fa1f1688b4818d6b7e2a3e82449245a0e8"
+source = "git+https://github.com/nikstern/temper.git?rev=086c6ff2#086c6ff2bd0feb6ce88b373921caab58291843a6"
 dependencies = [
  "serde",
  "serde_json",
