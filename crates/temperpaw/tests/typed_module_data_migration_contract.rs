@@ -61,6 +61,26 @@ fn plan_approval_handler_uses_its_generated_typed_data_client() {
 }
 
 #[test]
+fn pause_for_plan_approval_declares_its_request_plan_review_module() {
+    let root = workspace_root();
+    let manifest_source = fs::read_to_string(root.join("os-apps/paw-agent/app.toml"))
+        .expect("paw-agent app manifest should exist");
+    let manifest: toml::Value =
+        toml::from_str(&manifest_source).expect("paw-agent app manifest should parse");
+    let declared_modules = manifest
+        .get("wasm_modules")
+        .and_then(toml::Value::as_array)
+        .expect("paw-agent should declare WASM modules");
+
+    assert!(
+        declared_modules.iter().any(|module| {
+            module.get("name").and_then(toml::Value::as_str) == Some("request_plan_review")
+        }),
+        "Session.PauseForPlanApproval must package the request_plan_review trigger module"
+    );
+}
+
+#[test]
 fn paw_agent_csdl_includes_the_project_entity_from_adr_0018() {
     let csdl = fs::read_to_string(workspace_root().join("os-apps/paw-agent/specs/model.csdl.xml"))
         .expect("paw-agent CSDL should exist");

@@ -63,6 +63,11 @@ criticality = "app-required"
 startup_loading = "lazy"
 
 [[wasm_modules]]
+name = "request_plan_review"
+criticality = "app-required"
+startup_loading = "lazy"
+
+[[wasm_modules]]
 name = "plan_approval_handler"
 criticality = "app-required"
 startup_loading = "lazy"
