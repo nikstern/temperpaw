@@ -125,10 +125,6 @@ kind = "wasm"
 module = "plan_approval_handler"
 on_failure = "Fail"
 
-[action.triggers.config]
-temper_api_url = "{secret:temper_api_url}"
-
-
 [[action]]
 name = "RequestChanges"
 kind = "input"

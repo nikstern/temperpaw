@@ -129,6 +129,7 @@ async fn startup_recovers_source_intent_committed_before_process_exit() {
         created_at: sim_now(),
         not_before: None,
         state_timeout: None,
+        collection: None,
         schema_pin: None,
     };
     let mut payload = serde_json::json!({

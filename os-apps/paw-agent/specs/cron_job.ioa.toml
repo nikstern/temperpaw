@@ -199,7 +199,7 @@ from = ["Active"]
 params = ["next_run_at", "user_message"]
 hint = "Cron computation complete. Spawn Session with copied fields, schedule next run."
 effect = [
-  { type = "spawn", entity_type = "Session", entity_id_source = "{uuid}", initial_action = "Configure", store_id_in = "last_session_id", copy_fields = "system_prompt,user_message,model,provider,provider_options_json,temperature,tools_enabled,soul_id,sandbox_url,max_turns" },
+  { type = "spawn", entity_type = "Session", entity_id_source = "{uuid}", initial_action = "ConfigureScheduledRun", store_id_in = "last_session_id", copy_fields = "system_prompt,user_message,model,provider,provider_options_json,temperature,tools_enabled,soul_id,sandbox_url,max_turns" },
   { type = "schedule_at", field = "next_run_at", action = "Trigger" },
 ]
 

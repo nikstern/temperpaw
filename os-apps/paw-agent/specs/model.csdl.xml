@@ -261,6 +261,21 @@
         <ReturnType Type="TemperPaw.Session"/>
       </Action>
 
+      <Action Name="ConfigureScheduledRun" IsBound="true">
+        <Parameter Name="bindingParameter" Type="TemperPaw.Session"/>
+        <Parameter Name="system_prompt" Type="Edm.String" Nullable="false"/>
+        <Parameter Name="user_message" Type="Edm.String" Nullable="false"/>
+        <Parameter Name="model" Type="Edm.String" Nullable="true"/>
+        <Parameter Name="provider" Type="Edm.String" Nullable="true"/>
+        <Parameter Name="provider_options_json" Type="Edm.String" Nullable="true"/>
+        <Parameter Name="temperature" Type="Edm.String" Nullable="true"/>
+        <Parameter Name="max_turns" Type="Edm.String" Nullable="true"/>
+        <Parameter Name="tools_enabled" Type="Edm.String" Nullable="true"/>
+        <Parameter Name="soul_id" Type="Edm.String" Nullable="true"/>
+        <Parameter Name="sandbox_url" Type="Edm.String" Nullable="true"/>
+        <ReturnType Type="TemperPaw.Session"/>
+      </Action>
+
       <Action Name="Provision" IsBound="true">
         <Parameter Name="bindingParameter" Type="TemperPaw.Session"/>
         <ReturnType Type="TemperPaw.Session"/>
@@ -938,6 +953,47 @@
         <ReturnType Type="TemperPaw.Team"/>
       </Action>
 
+      <EntityType Name="Project">
+        <Key><PropertyRef Name="Id"/></Key>
+        <Property Name="Id" Type="Edm.String" Nullable="false"/>
+        <Property Name="Status" Type="Edm.String"/>
+        <Property Name="Name" Type="Edm.String"/>
+        <Property Name="Description" Type="Edm.String"/>
+        <Property Name="OwnerAgentId" Type="Edm.String"/>
+        <Property Name="AppIds" Type="Edm.String"/>
+      </EntityType>
+
+      <Action Name="Configure" IsBound="true">
+        <Parameter Name="bindingParameter" Type="TemperPaw.Project"/>
+        <Parameter Name="name" Type="Edm.String" Nullable="true"/>
+        <Parameter Name="description" Type="Edm.String" Nullable="true"/>
+        <Parameter Name="owner_agent_id" Type="Edm.String" Nullable="true"/>
+        <Parameter Name="app_ids" Type="Edm.String" Nullable="true"/>
+        <ReturnType Type="TemperPaw.Project"/>
+      </Action>
+
+      <Action Name="Update" IsBound="true">
+        <Parameter Name="bindingParameter" Type="TemperPaw.Project"/>
+        <Parameter Name="description" Type="Edm.String" Nullable="true"/>
+        <Parameter Name="app_ids" Type="Edm.String" Nullable="true"/>
+        <ReturnType Type="TemperPaw.Project"/>
+      </Action>
+
+      <Action Name="Pause" IsBound="true">
+        <Parameter Name="bindingParameter" Type="TemperPaw.Project"/>
+        <ReturnType Type="TemperPaw.Project"/>
+      </Action>
+
+      <Action Name="Resume" IsBound="true">
+        <Parameter Name="bindingParameter" Type="TemperPaw.Project"/>
+        <ReturnType Type="TemperPaw.Project"/>
+      </Action>
+
+      <Action Name="Archive" IsBound="true">
+        <Parameter Name="bindingParameter" Type="TemperPaw.Project"/>
+        <ReturnType Type="TemperPaw.Project"/>
+      </Action>
+
       <EntityType Name="Plan">
         <Key><PropertyRef Name="Id"/></Key>
         <Property Name="Id" Type="Edm.String" Nullable="false"/>
@@ -1049,6 +1105,7 @@
         <EntitySet Name="Apps" EntityType="TemperPaw.App"/>
         <EntitySet Name="Agents" EntityType="TemperPaw.Agent"/>
         <EntitySet Name="Teams" EntityType="TemperPaw.Team"/>
+        <EntitySet Name="Projects" EntityType="TemperPaw.Project"/>
         <EntitySet Name="Souls" EntityType="TemperPaw.Soul"/>
         <EntitySet Name="Memories" EntityType="TemperPaw.Memory"/>
         <EntitySet Name="ToolHooks" EntityType="TemperPaw.ToolHook"/>

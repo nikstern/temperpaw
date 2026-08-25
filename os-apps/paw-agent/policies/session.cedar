@@ -121,6 +121,14 @@ permit(
   ["supervisor", "human", "system", "admin"].contains(principal.agent_type)
 };
 
+// Typed host-data calls execute as the bound module principal. Keep the grant
+// pinned to the one callback declared in plan_approval_handler's app manifest.
+permit(
+  principal == Agent::"plan_approval_handler",
+  action == Action::"ResumeWithPlanApproval",
+  resource is Session
+);
+
 // --- WASM module HTTP call authorization ---
 
 permit(
