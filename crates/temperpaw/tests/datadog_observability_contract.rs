@@ -91,8 +91,8 @@ fn collect_named_files(
 #[test]
 fn temper_dependencies_use_one_fork_and_revision() {
     const EXPECTED_URL: &str = "https://github.com/nikstern/temper.git";
-    const EXPECTED_REV: &str = "086c6ff2";
-    const EXPECTED_COMMIT: &str = "086c6ff2bd0feb6ce88b373921caab58291843a6";
+    const EXPECTED_REV: &str = "3529043f";
+    const EXPECTED_COMMIT: &str = "3529043f4b0757aefcb4d007e7571104c75bbc32";
 
     let root = repo_root();
     let mut manifests = Vec::new();
@@ -214,7 +214,7 @@ source = "git+https://github.com/nerdsane/temper.git?rev=deadbeef#deadbeefdeadbe
 fn temper_dependency_pin_uses_budgeted_wasm_host_call_revision() {
     let manifest = load_text("crates/temperpaw/Cargo.toml");
     let lockfile = load_text("Cargo.lock");
-    let expected_rev = "086c6ff2";
+    let expected_rev = "3529043f";
     let pre_llmobs_opt_out_rev = "510a0d9bc9517f7819d66849446cdf6aff2d5295";
     let observe_wait_only_rev = "6ccc483af87abbf6d9b060d0e6a6def3adfe6718";
     let host_boundary_rev = "7b170cf71246e01c337e81062b54ea8c597b9293";
@@ -273,7 +273,7 @@ fn temper_dependency_pin_uses_budgeted_wasm_host_call_revision() {
 #[test]
 fn wasm_sdk_dependencies_pin_same_temper_runtime_revision_as_server() {
     let root = repo_root();
-    let expected_rev = "086c6ff2";
+    let expected_rev = "3529043f";
     let expected_dependency = format!(
         "temper-wasm-sdk = {{ git = \"https://github.com/nikstern/temper.git\", rev = \"{expected_rev}\""
     );
@@ -2089,7 +2089,7 @@ fn wasm_guest_observability_live_proof_is_temper_native_and_datadog_backed() {
     }
 
     assert!(
-        probe_manifest.contains("temper-wasm-sdk") && probe_manifest.contains("086c6ff2"),
+        probe_manifest.contains("temper-wasm-sdk") && probe_manifest.contains("3529043f"),
         "proof WASM must build against the same guest SDK runtime rev as production modules"
     );
 }

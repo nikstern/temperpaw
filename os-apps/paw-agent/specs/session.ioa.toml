@@ -594,6 +594,14 @@ hint = "Configure session. Auto-provisions after configuration. Resume fields (w
 effect = [{ type = "schedule", action = "ProvisionWorkspace", delay_seconds = 0 }]
 
 [[action]]
+name = "ConfigureScheduledRun"
+kind = "input"
+from = ["Created"]
+params = ["system_prompt", "user_message", "model", "provider", "provider_options_json", "temperature", "max_turns", "tools_enabled", "soul_id", "sandbox_url"]
+hint = "Configure a Session spawned by CronJob using only fields owned by the schedule."
+effect = [{ type = "schedule", action = "ProvisionWorkspace", delay_seconds = 0 }]
+
+[[action]]
 name = "ProvisionWorkspace"
 kind = "input"
 from = ["Created"]
