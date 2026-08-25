@@ -1,5 +1,91 @@
 # Proof Report: 62 — Typed Plan Approval Leaf
 
+> Current report: the "Initial draft" section at the end is retained as an
+> audit trail and is superseded by this section.
+
+## Current scope and result
+
+- Date: 2026-08-25
+- TemperPaw: `codex/task-62-typed-leaf` on GitHub `nikstern/temperpaw`
+- Temper prerequisite: PR #58, merge
+  `0ee5cf195434bd35fa843f3ff4118095ef0a9b36`
+- Production publishing, Genesis pin update, Railway deployment, and Datadog
+  checks were explicitly excluded by the user.
+
+`plan_approval_handler` now uses its generated, artifact-bound Session client
+for the exact `entity_get` and `ResumeWithPlanApproval` operations. Loopback
+HTTP, hand-built authorization headers, and untyped response decoding were
+removed.
+
+Live verification exposed two additional required corrections. Both approval
+reaction modules (`request_plan_review` and `request_approval`) are now declared
+app-required/lazy in `app.toml`. Cedar also permits the bound
+`Agent::"plan_approval_handler"` principal to invoke only
+`Session.ResumeWithPlanApproval`; the artifact data grant independently limits
+the module to the same callback and its one Session read. ADR-039 records these
+packaging and capability decisions.
+
+## Red-green evidence
+
+- The typed-client contract failed before generation/grant and passed after.
+- Each approval-module packaging contract failed before its manifest
+  declaration and passed after.
+- The typed callback authorization contract failed before the exact Cedar
+  permit and passed after.
+- Temper PR #58 added a failing cache-restart regression before restoring
+  verified host-only data bindings from durable metadata; its full CI passed.
+
+## Build and static verification
+
+- Generated SDK closure:
+  `sha256:53f06b43315017309aa0fcf9479a2117184c64a2d0aa8e7359abb14e07edf65b`
+- SDK generation and artifact-binding drift checks: pass.
+- Leaf WASM release build with repository linker config: pass.
+- Full paw-agent WASM build: pass before final manifest-only packaging changes;
+  the leaf was regenerated, rebuilt, and rebound afterward.
+- `cargo fmt --all --check`: pass.
+- `cargo check --locked --workspace --all-targets`: pass.
+- Strict workspace clippy: pass.
+- Full workspace test suite with `--test-threads=1`: pass.
+- Temper pin contract: 34 passed.
+- `paw-codex-worker` serial suite: 89 passed. A prior parallel workspace run
+  hit its shared fake-codex fixture race; the same suite passed serially.
+
+## Local runtime verification
+
+Temper ran against isolated data
+`/private/tmp/temper-task62-e2e.UvYG4H`, then restarted from `/private/tmp`
+without a TemperPaw source path. Startup reported `Restored app cache roots:
+local=1`; paw-fs, paw-agent, and paw-channels restored from immutable cache.
+
+The final rebound paw-agent bundle installed successfully as
+`sha256:c8c69488f4857bc172209a605cea7d6856de15b035fab699a7d60f0c2a9de0b9`;
+the full paw-channels closure used during the routed proof was
+`sha256:95db951f2be286cdc320ca448c7533f1b8551a37794271bef6b29f15cf9cfad4`.
+
+Fixture `task62-typed-approval-final20` exercised the real Session pipeline
+through `Created → Provisioning → PreparingContext → CallingProvider →
+ApplyingProviderResponse → Executing → WaitingForApproval`. A deliberately
+denied, non-mutating Soul create produced governed decision
+`PD-01a03b2a-671b-7140-8f42-12ab91d4e562`. Plan
+`task62-typed-plan-final20` moved `Draft → UnderReview → Active`, and the real
+`plan_approval_handler` invocation completed successfully in 6 ms.
+
+The isolated CLI server uses bearer authentication, while `request_approval`'s
+temper-system lookup uses trusted internal admin headers. That lookup returned
+404 in this harness and its declared `on_failure = "Fail"` reaction committed
+before the Plan handler read the Session. The handler therefore correctly saw
+a non-waiting Session and skipped. No production policy was weakened to force
+a positive result. A positive post-action `WaitingForApproval →
+PreparingContext` observation remains for the deployment environment excluded
+from this effort; generated client/action shape, sequence precondition, module
+grant, and exact Cedar authorization are covered by green contracts.
+
+Temporary fixture policies were exact-entity scoped (plus exact-module access
+to those fixtures' SessionEntries) and were removed after verification.
+
+## Initial draft (superseded audit trail)
+
 ## Date
 
 2026-08-25

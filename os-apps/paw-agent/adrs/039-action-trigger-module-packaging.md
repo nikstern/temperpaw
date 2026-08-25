@@ -7,11 +7,18 @@
 
 ## Context
 
-`Session.PauseForPlanApproval` names `request_plan_review` in an inline WASM
-trigger. The module source and compiled artifact existed, but `paw-agent` did
-not declare the module in `app.toml`. Canonical installation packages only
-declared modules, so the transition committed and its required reaction then
-failed because the runtime could not resolve the module.
+`Session.PauseForPlanApproval` and `Session.PauseForApproval` name
+`request_plan_review` and `request_approval` in inline WASM triggers. Their
+module sources and compiled artifacts existed, but `paw-agent` did not declare
+them in `app.toml`. Canonical installation packages only declared modules, so
+the transitions committed and their required reactions then failed because the
+runtime could not resolve the modules.
+
+The typed `plan_approval_handler` also invokes a Session action through the
+host-data ABI as the bound module principal. The previous Cedar policy only
+authorized role-bearing human and system principals for
+`ResumeWithPlanApproval`, so an otherwise valid typed callback had no matching
+permit.
 
 An artifact's presence in the source tree is not deployment intent. The app
 manifest is the canonical module inventory.
@@ -19,21 +26,29 @@ manifest is the canonical module inventory.
 ## Decision
 
 Every WASM module referenced by a `paw-agent` action trigger must also appear in
-the app's `[[wasm_modules]]` declarations. `request_plan_review` is declared as
-an app-required, lazily loaded module because plan-review notification is part
-of the approval-gated Session state machine but is not needed during startup.
+the app's `[[wasm_modules]]` declarations. `request_plan_review` and
+`request_approval` are declared as app-required, lazily loaded modules because
+approval notification is part of the gated Session state machine but is not
+needed during startup.
 
-A contract test parses the app manifest and requires this declaration for the
-`PauseForPlanApproval` path.
+The Session Cedar policy grants `Agent::"plan_approval_handler"` exactly
+`ResumeWithPlanApproval` on Session resources. The manifest's artifact-bound
+data grant independently limits that module to the same action plus the one
+Session read required to decide whether resumption is valid.
+
+Contract tests parse the app manifest and policy and require these declarations
+for both pause paths and the typed callback.
 
 ## Consequences
 
-- Immutable bundles include the reaction module needed by the declared state
-  transition.
+- Immutable bundles include the reaction modules needed by the declared state
+  transitions.
 - Missing packaging fails during contract verification instead of after a live
   Session enters `WaitingForApproval`.
-- The module remains lazy, avoiding startup compilation cost until the approval
+- The modules remain lazy, avoiding startup compilation cost until an approval
   path is exercised.
+- Typed plan approval is authorized without granting the module any unrelated
+  Session action.
 
 ## Alternatives Considered
 

@@ -81,6 +81,40 @@ fn pause_for_plan_approval_declares_its_request_plan_review_module() {
 }
 
 #[test]
+fn pause_for_cedar_approval_declares_its_request_approval_module() {
+    let root = workspace_root();
+    let manifest_source = fs::read_to_string(root.join("os-apps/paw-agent/app.toml"))
+        .expect("paw-agent app manifest should exist");
+    let manifest: toml::Value =
+        toml::from_str(&manifest_source).expect("paw-agent app manifest should parse");
+    let declared_modules = manifest
+        .get("wasm_modules")
+        .and_then(toml::Value::as_array)
+        .expect("paw-agent should declare WASM modules");
+
+    assert!(
+        declared_modules.iter().any(|module| {
+            module.get("name").and_then(toml::Value::as_str) == Some("request_approval")
+        }),
+        "Session.PauseForApproval must package the request_approval trigger module"
+    );
+}
+
+#[test]
+fn typed_plan_review_modules_are_authorized_for_their_session_callbacks() {
+    let policy =
+        fs::read_to_string(workspace_root().join("os-apps/paw-agent/policies/session.cedar"))
+            .expect("session Cedar policy should exist");
+
+    let principal = "principal == Agent::\"plan_approval_handler\"";
+    let action = "action == Action::\"ResumeWithPlanApproval\"";
+    assert!(
+        policy.contains(principal) && policy.contains(action),
+        "typed plan approval module must be authorized for its exact Session callback"
+    );
+}
+
+#[test]
 fn paw_agent_csdl_includes_the_project_entity_from_adr_0018() {
     let csdl = fs::read_to_string(workspace_root().join("os-apps/paw-agent/specs/model.csdl.xml"))
         .expect("paw-agent CSDL should exist");
