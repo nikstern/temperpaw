@@ -1,0 +1,28 @@
+[automaton]
+name = "Order"
+states = ["Draft", "Confirmed"]
+initial = "Draft"
+
+[[state]]
+name = "payment_id"
+type = "string"
+initial = ""
+
+[[action]]
+name = "ConfirmOrder"
+kind = "input"
+from = ["Draft"]
+to = "Confirmed"
+params = ["payment_id"]
+
+[[action.triggers]]
+name = "confirm_triggers_authorization"
+kind = "entity"
+principal = "payment-service"
+target_entity = "Payment"
+target_action = "AuthorizePayment"
+
+[action.triggers.resolve_target]
+type = "field"
+field = "payment_id"
+

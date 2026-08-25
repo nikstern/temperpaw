@@ -81,6 +81,10 @@ fn build_state(tenant: &str) -> ServerState {
         )
         .expect("tenant registers");
     let state = ServerState::from_registry(ActorSystem::new("paw-reaction-recovery"), registry);
+    state
+        .authz
+        .reload_tenant_policies(tenant, "permit(principal, action, resource);")
+        .expect("reaction fixture policy parses");
     state.rebuild_reaction_dispatcher();
     state
 }

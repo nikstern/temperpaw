@@ -1,0 +1,11 @@
+[automaton]
+name = "Payment"
+states = ["Pending", "Authorized"]
+initial = "Pending"
+
+[[action]]
+name = "AuthorizePayment"
+kind = "internal"
+from = ["Pending"]
+to = "Authorized"
+
