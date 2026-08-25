@@ -45,3 +45,22 @@ fn plan_approval_handler_uses_its_generated_typed_data_client() {
         );
     }
 }
+
+#[test]
+fn paw_agent_csdl_includes_the_project_entity_from_adr_0018() {
+    let csdl = fs::read_to_string(
+        workspace_root().join("os-apps/paw-agent/specs/model.csdl.xml"),
+    )
+    .expect("paw-agent CSDL should exist");
+
+    for expected in [
+        "<EntityType Name=\"Project\">",
+        "<Action Name=\"Configure\" IsBound=\"true\">",
+        "<EntitySet Name=\"Projects\" EntityType=\"TemperPaw.Project\"/>",
+    ] {
+        assert!(
+            csdl.contains(expected),
+            "ADR-0018 Project metadata is missing from paw-agent CSDL: {expected}"
+        );
+    }
+}
