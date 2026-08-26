@@ -90,3 +90,27 @@ fn paw_fs_versioning_contract_uses_no_legacy_reactions_file() {
         assert!(csdl.contains(needle), "CSDL should contain {needle}");
     }
 }
+
+#[test]
+fn paw_fs_activates_closed_durable_stream_descriptor_semantics() {
+    let csdl = read(repo_root().join("os-apps/paw-fs/specs/model.csdl.xml"));
+
+    for needle in [
+        "<Annotation Term=\"Temper.Vocab.Stream.Mutability\" String=\"Mutable\"/>",
+        "<Annotation Term=\"Temper.Vocab.Stream.VersionEntityType\" String=\"Paw.FS.FileVersion\"/>",
+        "<Annotation Term=\"Temper.Vocab.Stream.VersionCollection\" NavigationPropertyPath=\"Versions\"/>",
+        "<Annotation Term=\"Temper.Vocab.Stream.Mutability\" String=\"Immutable\"/>",
+        "<Annotation Term=\"Temper.Vocab.Stream.AuthorizationParent\" NavigationPropertyPath=\"File\"/>",
+    ] {
+        assert!(csdl.contains(needle), "PawFS CSDL should contain {needle}");
+    }
+
+    assert_eq!(
+        csdl.matches(
+            "<Annotation Term=\"Temper.Vocab.Stream.DescriptorContractVersion\" Int=\"1\"/>"
+        )
+        .count(),
+        2,
+        "File and FileVersion must both activate descriptor contract V1"
+    );
+}
