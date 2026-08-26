@@ -35,6 +35,13 @@ must reject any mixed owner, branch, tag, short revision, or resolved commit.
 WASM binaries remain build outputs rather than checked-in source artifacts;
 CI and the production image rebuild them from the committed locks.
 
+Declare `TemperPaw.Session.Status`'s CSDL default as `Created`, matching the
+Session IOA initial state. The new kernel resolves lifecycle-property
+provenance structurally at SDK generation time; the explicit matching default
+lets it bind `Status` to the host-owned lifecycle instead of guessing from the
+public property name. Regenerate the checked-in typed client, closure lock, and
+artifact-bound manifest after making that schema contract explicit.
+
 ## Consequences
 
 Positive:
@@ -42,6 +49,8 @@ Positive:
 - The host kernel and guest modules share one immutable SDK lineage.
 - Generated grant surfaces and canonical binding restoration are exercised
   against artifacts compiled from the kernel revision that will restore them.
+- Typed Session reads project the runtime lifecycle through locked provenance,
+  including after the workspace sources are absent.
 - A partial pin cannot pass the repository-wide dependency contract.
 
 Tradeoffs:
