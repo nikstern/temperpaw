@@ -5956,7 +5956,7 @@ checksum = "adb6935a6f5c20170eeceb1a3835a49e12e19d792f6dd344ccc76a985ca5a6ca"
 [[package]]
 name = "temper-actor-runtime"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=e8ff002b#e8ff002bde3e9512385c2856d733210600e7c253"
+source = "git+https://github.com/nikstern/temper.git?rev=e8ff002bde3e9512385c2856d733210600e7c253#e8ff002bde3e9512385c2856d733210600e7c253"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5979,7 +5979,7 @@ dependencies = [
 [[package]]
 name = "temper-authz"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=e8ff002b#e8ff002bde3e9512385c2856d733210600e7c253"
+source = "git+https://github.com/nikstern/temper.git?rev=e8ff002bde3e9512385c2856d733210600e7c253#e8ff002bde3e9512385c2856d733210600e7c253"
 dependencies = [
  "cedar-policy",
  "opentelemetry",
@@ -5993,7 +5993,7 @@ dependencies = [
 [[package]]
 name = "temper-codegen"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=e8ff002b#e8ff002bde3e9512385c2856d733210600e7c253"
+source = "git+https://github.com/nikstern/temper.git?rev=e8ff002bde3e9512385c2856d733210600e7c253#e8ff002bde3e9512385c2856d733210600e7c253"
 dependencies = [
  "serde",
  "serde_json",
@@ -6007,7 +6007,7 @@ dependencies = [
 [[package]]
 name = "temper-evolution"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=e8ff002b#e8ff002bde3e9512385c2856d733210600e7c253"
+source = "git+https://github.com/nikstern/temper.git?rev=e8ff002bde3e9512385c2856d733210600e7c253#e8ff002bde3e9512385c2856d733210600e7c253"
 dependencies = [
  "chrono",
  "serde",
@@ -6024,7 +6024,7 @@ dependencies = [
 [[package]]
 name = "temper-jit"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=e8ff002b#e8ff002bde3e9512385c2856d733210600e7c253"
+source = "git+https://github.com/nikstern/temper.git?rev=e8ff002bde3e9512385c2856d733210600e7c253#e8ff002bde3e9512385c2856d733210600e7c253"
 dependencies = [
  "serde",
  "serde_json",
@@ -6036,7 +6036,7 @@ dependencies = [
 [[package]]
 name = "temper-observe"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=e8ff002b#e8ff002bde3e9512385c2856d733210600e7c253"
+source = "git+https://github.com/nikstern/temper.git?rev=e8ff002bde3e9512385c2856d733210600e7c253#e8ff002bde3e9512385c2856d733210600e7c253"
 dependencies = [
  "chrono",
  "opentelemetry",
@@ -6059,7 +6059,7 @@ dependencies = [
 [[package]]
 name = "temper-odata"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=e8ff002b#e8ff002bde3e9512385c2856d733210600e7c253"
+source = "git+https://github.com/nikstern/temper.git?rev=e8ff002bde3e9512385c2856d733210600e7c253#e8ff002bde3e9512385c2856d733210600e7c253"
 dependencies = [
  "axum 0.8.9",
  "chrono",
@@ -6073,7 +6073,7 @@ dependencies = [
 [[package]]
 name = "temper-optimize"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=e8ff002b#e8ff002bde3e9512385c2856d733210600e7c253"
+source = "git+https://github.com/nikstern/temper.git?rev=e8ff002bde3e9512385c2856d733210600e7c253#e8ff002bde3e9512385c2856d733210600e7c253"
 dependencies = [
  "serde",
  "serde_json",
@@ -6088,7 +6088,7 @@ dependencies = [
 [[package]]
 name = "temper-ots"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=e8ff002b#e8ff002bde3e9512385c2856d733210600e7c253"
+source = "git+https://github.com/nikstern/temper.git?rev=e8ff002bde3e9512385c2856d733210600e7c253#e8ff002bde3e9512385c2856d733210600e7c253"
 dependencies = [
  "chrono",
  "serde",
@@ -6100,7 +6100,7 @@ dependencies = [
 [[package]]
 name = "temper-platform"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=e8ff002b#e8ff002bde3e9512385c2856d733210600e7c253"
+source = "git+https://github.com/nikstern/temper.git?rev=e8ff002bde3e9512385c2856d733210600e7c253#e8ff002bde3e9512385c2856d733210600e7c253"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -6137,7 +6137,7 @@ dependencies = [
 [[package]]
 name = "temper-runtime"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=e8ff002b#e8ff002bde3e9512385c2856d733210600e7c253"
+source = "git+https://github.com/nikstern/temper.git?rev=e8ff002bde3e9512385c2856d733210600e7c253#e8ff002bde3e9512385c2856d733210600e7c253"
 dependencies = [
  "anyhow",
  "chrono",
@@ -6153,7 +6153,7 @@ dependencies = [
 [[package]]
 name = "temper-sandbox"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=e8ff002b#e8ff002bde3e9512385c2856d733210600e7c253"
+source = "git+https://github.com/nikstern/temper.git?rev=e8ff002bde3e9512385c2856d733210600e7c253#e8ff002bde3e9512385c2856d733210600e7c253"
 dependencies = [
  "anyhow",
  "monty",
@@ -6168,7 +6168,7 @@ dependencies = [
 [[package]]
 name = "temper-server"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=e8ff002b#e8ff002bde3e9512385c2856d733210600e7c253"
+source = "git+https://github.com/nikstern/temper.git?rev=e8ff002bde3e9512385c2856d733210600e7c253#e8ff002bde3e9512385c2856d733210600e7c253"
 dependencies = [
  "aes-gcm",
  "async-stream",
@@ -6224,7 +6224,7 @@ dependencies = [
 [[package]]
 name = "temper-spec"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=e8ff002b#e8ff002bde3e9512385c2856d733210600e7c253"
+source = "git+https://github.com/nikstern/temper.git?rev=e8ff002bde3e9512385c2856d733210600e7c253#e8ff002bde3e9512385c2856d733210600e7c253"
 dependencies = [
  "quick-xml",
  "serde",
@@ -6238,7 +6238,7 @@ dependencies = [
 [[package]]
 name = "temper-store-postgres"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=e8ff002b#e8ff002bde3e9512385c2856d733210600e7c253"
+source = "git+https://github.com/nikstern/temper.git?rev=e8ff002bde3e9512385c2856d733210600e7c253#e8ff002bde3e9512385c2856d733210600e7c253"
 dependencies = [
  "chrono",
  "opentelemetry",
@@ -6256,7 +6256,7 @@ dependencies = [
 [[package]]
 name = "temper-store-redis"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=e8ff002b#e8ff002bde3e9512385c2856d733210600e7c253"
+source = "git+https://github.com/nikstern/temper.git?rev=e8ff002bde3e9512385c2856d733210600e7c253#e8ff002bde3e9512385c2856d733210600e7c253"
 dependencies = [
  "chrono",
  "fred",
@@ -6273,7 +6273,7 @@ dependencies = [
 [[package]]
 name = "temper-store-turso"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=e8ff002b#e8ff002bde3e9512385c2856d733210600e7c253"
+source = "git+https://github.com/nikstern/temper.git?rev=e8ff002bde3e9512385c2856d733210600e7c253#e8ff002bde3e9512385c2856d733210600e7c253"
 dependencies = [
  "libsql",
  "opentelemetry",
@@ -6289,7 +6289,7 @@ dependencies = [
 [[package]]
 name = "temper-verify"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=e8ff002b#e8ff002bde3e9512385c2856d733210600e7c253"
+source = "git+https://github.com/nikstern/temper.git?rev=e8ff002bde3e9512385c2856d733210600e7c253#e8ff002bde3e9512385c2856d733210600e7c253"
 dependencies = [
  "proptest",
  "serde",
@@ -6303,7 +6303,7 @@ dependencies = [
 [[package]]
 name = "temper-wasm"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=e8ff002b#e8ff002bde3e9512385c2856d733210600e7c253"
+source = "git+https://github.com/nikstern/temper.git?rev=e8ff002bde3e9512385c2856d733210600e7c253#e8ff002bde3e9512385c2856d733210600e7c253"
 dependencies = [
  "async-stream",
  "async-trait",
@@ -6330,7 +6330,7 @@ dependencies = [
 [[package]]
 name = "temper-wasm-sdk"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=e8ff002b#e8ff002bde3e9512385c2856d733210600e7c253"
+source = "git+https://github.com/nikstern/temper.git?rev=e8ff002bde3e9512385c2856d733210600e7c253#e8ff002bde3e9512385c2856d733210600e7c253"
 dependencies = [
  "serde",
  "serde_json",

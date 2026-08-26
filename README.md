@@ -146,3 +146,19 @@ If you don't have a Datadog key yet, deploy without it — the collector runs in
 TemperPaw runs on [Temper](https://github.com/nerdsane/temper), an open-source kernel with building blocks that generalize to build software applications of any size. Temper provides verified state machines, authorization policies, and an auditable runtime. TemperPaw is one application built on Temper — and the capabilities agents create are also applications built on Temper. Same kernel, same building blocks, all the way down.
 
 For architecture and internals, see [AGENTS.md](AGENTS.md), [docs/development.md](docs/development.md), and [docs/deployment.md](docs/deployment.md).
+
+### Update the Temper kernel pin
+
+TemperPaw keeps its server and independently packaged WASM crates on one immutable
+Temper revision. To update that revision, set the allowed repository in
+`.temper-kernel.toml` if necessary, then run:
+
+```bash
+scripts/sync-temper-kernel <40-character-commit>
+```
+
+The command discovers manifests only through the configured root, `crates/`, and
+`os-apps/` patterns. Reference projects, proofs, worktrees, generated files, and
+caches are outside that production dependency contract. Existing checked-in
+lockfiles are refreshed through Cargo. To verify the repository without changing
+files, run `scripts/sync-temper-kernel --check`.

@@ -3,7 +3,6 @@ use std::{
     collections::BTreeSet,
     fs,
     path::{Path, PathBuf},
-    process::Command,
 };
 
 fn repo_root() -> std::path::PathBuf {
@@ -27,6 +26,20 @@ fn load_text(relative_path: &str) -> String {
     let path = repo_root().join(relative_path);
     std::fs::read_to_string(&path)
         .unwrap_or_else(|err| panic!("failed to read {}: {err}", path.display()))
+}
+
+fn temper_kernel_pin() -> (String, String) {
+    let source = load_text(".temper-kernel.toml");
+    let config: toml::Value = toml::from_str(&source).expect("canonical Temper kernel pin is TOML");
+    let repository = config["repository"]
+        .as_str()
+        .expect("canonical Temper repository is a string")
+        .to_owned();
+    let revision = config["revision"]
+        .as_str()
+        .expect("canonical Temper revision is a string")
+        .to_owned();
+    (repository, revision)
 }
 
 fn collect_cargo_manifests(root: &Path, relative_dir: &Path, files: &mut Vec<PathBuf>) {
@@ -90,13 +103,11 @@ fn collect_named_files(
 
 #[test]
 fn temper_dependencies_use_one_fork_and_revision() {
-    const EXPECTED_URL: &str = "https://github.com/nikstern/temper.git";
-    const EXPECTED_REV: &str = "e8ff002b";
-    const EXPECTED_COMMIT: &str = "e8ff002bde3e9512385c2856d733210600e7c253";
-
     let root = repo_root();
-    let mut manifests = Vec::new();
-    collect_named_files(&root, Path::new(""), "Cargo.toml", &mut manifests);
+    let (expected_url, expected_rev) = temper_kernel_pin();
+    let mut manifests = vec![PathBuf::from("Cargo.toml")];
+    collect_named_files(&root, Path::new("crates"), "Cargo.toml", &mut manifests);
+    collect_named_files(&root, Path::new("os-apps"), "Cargo.toml", &mut manifests);
 
     let mut dependency_count = 0usize;
     for relative_path in manifests {
@@ -108,9 +119,9 @@ fn temper_dependencies_use_one_fork_and_revision() {
             }
             dependency_count += 1;
             assert!(
-                line.contains(&format!("git = \"{EXPECTED_URL}\""))
-                    && line.contains(&format!("rev = \"{EXPECTED_REV}\"")),
-                "{}:{} must source every Temper crate from {EXPECTED_URL} at {EXPECTED_REV}: {line}",
+                line.contains(&format!("git = \"{expected_url}\""))
+                    && line.contains(&format!("rev = \"{expected_rev}\"")),
+                "{}:{} must source every Temper crate from {expected_url} at {expected_rev}: {line}",
                 relative_path.display(),
                 line_index + 1,
             );
@@ -127,10 +138,11 @@ fn temper_dependencies_use_one_fork_and_revision() {
         "contract must inspect the full server and packaged WASM dependency surface"
     );
 
-    let mut lockfiles = Vec::new();
-    collect_named_files(&root, Path::new(""), "Cargo.lock", &mut lockfiles);
+    let mut lockfiles = vec![PathBuf::from("Cargo.lock")];
+    collect_named_files(&root, Path::new("crates"), "Cargo.lock", &mut lockfiles);
+    collect_named_files(&root, Path::new("os-apps"), "Cargo.lock", &mut lockfiles);
     let expected_source =
-        format!("source = \"git+{EXPECTED_URL}?rev={EXPECTED_REV}#{EXPECTED_COMMIT}\"");
+        format!("source = \"git+{expected_url}?rev={expected_rev}#{expected_rev}\"");
     let mut locked_temper_sources = 0usize;
     for relative_path in lockfiles {
         let lockfile = fs::read_to_string(root.join(&relative_path))
@@ -156,65 +168,10 @@ fn temper_dependencies_use_one_fork_and_revision() {
 }
 
 #[test]
-fn temper_dependency_pin_helper_updates_short_manifest_and_full_lock_revisions() {
-    let fixture = tempfile::tempdir().expect("temporary dependency-pin fixture");
-    fs::write(
-        fixture.path().join("Cargo.toml"),
-        r#"[dependencies]
-temper-server = { git = "https://github.com/nerdsane/temper.git", rev = "deadbeef" }
-temper-runtime = { git = "https://github.com/nerdsane/temper.git", branch = "main" }
-"#,
-    )
-    .expect("fixture manifest");
-    fs::write(
-        fixture.path().join("Cargo.lock"),
-        r#"[[package]]
-name = "temper-server"
-source = "git+https://github.com/nerdsane/temper.git?rev=deadbeef#deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
-"#,
-    )
-    .expect("fixture lockfile");
-
-    let revision = "9a2bf1fa1f1688b4818d6b7e2a3e82449245a0e8";
-    let helper = repo_root().join("scripts/pin-temper-dependencies.py");
-    let update = Command::new("python3")
-        .arg(&helper)
-        .args(["nikstern/temper", revision, "--root"])
-        .arg(fixture.path())
-        .output()
-        .expect("pin helper should run");
-    assert!(
-        update.status.success(),
-        "pin helper failed: {}",
-        String::from_utf8_lossy(&update.stderr)
-    );
-
-    let manifest = fs::read_to_string(fixture.path().join("Cargo.toml")).expect("updated manifest");
-    assert_eq!(manifest.matches("rev = \"9a2bf1fa\"").count(), 2);
-    assert!(manifest.contains("https://github.com/nikstern/temper.git"));
-    let lockfile = fs::read_to_string(fixture.path().join("Cargo.lock")).expect("updated lockfile");
-    assert!(lockfile.contains(&format!(
-        "git+https://github.com/nikstern/temper.git?rev=9a2bf1fa#{revision}"
-    )));
-
-    let check = Command::new("python3")
-        .arg(helper)
-        .args(["nikstern/temper", revision, "--check", "--root"])
-        .arg(fixture.path())
-        .output()
-        .expect("pin helper check should run");
-    assert!(
-        check.status.success(),
-        "pin helper check failed: {}",
-        String::from_utf8_lossy(&check.stderr)
-    );
-}
-
-#[test]
 fn temper_dependency_pin_uses_budgeted_wasm_host_call_revision() {
     let manifest = load_text("crates/temperpaw/Cargo.toml");
     let lockfile = load_text("Cargo.lock");
-    let expected_rev = "e8ff002b";
+    let (expected_url, expected_rev) = temper_kernel_pin();
     let pre_llmobs_opt_out_rev = "510a0d9bc9517f7819d66849446cdf6aff2d5295";
     let observe_wait_only_rev = "6ccc483af87abbf6d9b060d0e6a6def3adfe6718";
     let host_boundary_rev = "7b170cf71246e01c337e81062b54ea8c597b9293";
@@ -236,9 +193,8 @@ fn temper_dependency_pin_uses_budgeted_wasm_host_call_revision() {
         "temper-store-postgres",
         "temper-store-turso",
     ] {
-        let manifest_clause = format!(
-            "{temper_crate} = {{ git = \"https://github.com/nikstern/temper.git\", rev = \"{expected_rev}\""
-        );
+        let manifest_clause =
+            format!("{temper_crate} = {{ git = \"{expected_url}\", rev = \"{expected_rev}\"");
         assert!(
             manifest.contains(&manifest_clause),
             "{temper_crate} must pin the Temper rev with budgeted WASM host-call deadlines, event-driven observe wait, native data-only create storage, lazy WASM secret authorization, WASM dispatch envelope attribution, data-only create fast path support, projection read parity, local TData tenant propagation, runtime-derived LLMObs service identity, parent stitching, agent/workflow hierarchy, DBM attribution, profiling envelope, Datadog-visible WASM span hints, host-boundary spans, guest progress/log correlation, and wasm.invoke phase tracing"
@@ -265,7 +221,7 @@ fn temper_dependency_pin_uses_budgeted_wasm_host_call_revision() {
         "TemperPaw must not pin the pre-LLMObs-auto-conversion opt-out Temper rev"
     );
     assert!(
-        lockfile.contains(expected_rev),
+        lockfile.contains(&expected_rev),
         "Cargo.lock must resolve Temper dependencies to the budgeted WASM host-call deadline revision"
     );
 }
@@ -273,12 +229,11 @@ fn temper_dependency_pin_uses_budgeted_wasm_host_call_revision() {
 #[test]
 fn wasm_sdk_dependencies_pin_same_temper_runtime_revision_as_server() {
     let root = repo_root();
-    let expected_rev = "e8ff002b";
-    let expected_dependency = format!(
-        "temper-wasm-sdk = {{ git = \"https://github.com/nikstern/temper.git\", rev = \"{expected_rev}\""
-    );
+    let (expected_url, expected_rev) = temper_kernel_pin();
+    let expected_dependency =
+        format!("temper-wasm-sdk = {{ git = \"{expected_url}\", rev = \"{expected_rev}\"");
     let forbidden_dependency =
-        "temper-wasm-sdk = { git = \"https://github.com/nikstern/temper.git\", branch = \"main\"";
+        format!("temper-wasm-sdk = {{ git = \"{expected_url}\", branch = \"main\"");
     let mut manifests = Vec::new();
     collect_cargo_manifests(&root, Path::new("os-apps"), &mut manifests);
 
@@ -297,7 +252,7 @@ fn wasm_sdk_dependencies_pin_same_temper_runtime_revision_as_server() {
             manifest_path.display()
         );
         assert!(
-            !manifest.contains(forbidden_dependency),
+            !manifest.contains(&forbidden_dependency),
             "{} must not build temper-wasm-sdk from moving main; production images need one coherent SDK/runtime observability contract",
             manifest_path.display()
         );
@@ -310,7 +265,7 @@ fn wasm_sdk_dependencies_pin_same_temper_runtime_revision_as_server() {
             if lockfile.contains("name = \"temper-wasm-sdk\"") {
                 sdk_lockfiles += 1;
                 assert!(
-                    lockfile.contains(expected_rev),
+                    lockfile.contains(&expected_rev),
                     "{} must resolve temper-wasm-sdk to the same Temper runtime rev as the server",
                     lock_path.display()
                 );
@@ -2089,7 +2044,8 @@ fn wasm_guest_observability_live_proof_is_temper_native_and_datadog_backed() {
     }
 
     assert!(
-        probe_manifest.contains("temper-wasm-sdk") && probe_manifest.contains("e8ff002b"),
+        probe_manifest.contains("temper-wasm-sdk")
+            && probe_manifest.contains(&temper_kernel_pin().1),
         "proof WASM must build against the same guest SDK runtime rev as production modules"
     );
 }
