@@ -12,6 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6.0.2
+      - name: Temper kernel pin contract
+        run: |
+          python3 -m unittest scripts.tests.test_sync_temper_kernel -v
+          scripts/sync-temper-kernel --check
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown, wasm32-wasip1

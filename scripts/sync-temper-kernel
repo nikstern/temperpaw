@@ -1,0 +1,418 @@
+#!/usr/bin/env python3
+"""Synchronize every in-scope Temper Git dependency to the canonical kernel pin."""
+
+from __future__ import annotations
+
+import argparse
+import ast
+from dataclasses import dataclass
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+
+CONFIG_NAME = ".temper-kernel.toml"
+FULL_REVISION = re.compile(r"[0-9a-f]{40}")
+TEMPER_REPOSITORY = re.compile(r"https://github\.com/[A-Za-z0-9_.-]+/temper\.git")
+PIN_ASSIGNMENT = re.compile(r'(?P<key>rev|branch|tag)\s*=\s*"(?P<value>[^"]+)"')
+LOCK_SOURCE = re.compile(
+    r'^source = "git\+(?P<repository>https://github\.com/[A-Za-z0-9_.-]+/temper\.git)'
+    r'\?(?P<selector>[^#"]+)#(?P<resolved>[0-9a-f]+)"$',
+    re.MULTILINE,
+)
+PACKAGE_NAME = re.compile(r'^name = "(?P<name>[^"]+)"$', re.MULTILINE)
+EXCLUDED_DIRECTORIES = {".git", ".local", "__pycache__", "node_modules", "target"}
+
+
+class SyncError(Exception):
+    """An actionable pin-contract failure."""
+
+
+@dataclass(frozen=True)
+class PinConfig:
+    repository: str
+    revision: str
+    manifest_patterns: tuple[str, ...]
+    lockfile_patterns: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class TemperDependency:
+    start: int
+    end: int
+    line: int
+    repository: str
+    selector: str | None
+    value: str | None
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("revision", nargs="?", help="new exact 40-character lowercase Git commit")
+    parser.add_argument("--check", action="store_true", help="verify the canonical pin without changing files")
+    parser.add_argument(
+        "--root",
+        type=Path,
+        default=Path(__file__).resolve().parents[1],
+        help=argparse.SUPPRESS,
+    )
+    return parser.parse_args()
+
+
+def parse_string_setting(source: str, key: str) -> str:
+    match = re.search(rf'^{re.escape(key)}\s*=\s*"([^"]+)"\s*$', source, re.MULTILINE)
+    if not match:
+        raise SyncError(f"{CONFIG_NAME}: missing string setting `{key}`")
+    return match.group(1)
+
+
+def parse_list_setting(source: str, key: str) -> tuple[str, ...]:
+    match = re.search(rf"^{re.escape(key)}\s*=\s*(\[[^\n]+\])\s*$", source, re.MULTILINE)
+    if not match:
+        raise SyncError(f"{CONFIG_NAME}: missing single-line array setting `{key}`")
+    try:
+        values = ast.literal_eval(match.group(1))
+    except (SyntaxError, ValueError) as error:
+        raise SyncError(f"{CONFIG_NAME}: malformed `{key}`: {error}") from error
+    if not isinstance(values, list) or not values or not all(isinstance(value, str) for value in values):
+        raise SyncError(f"{CONFIG_NAME}: `{key}` must be a non-empty string array")
+    for value in values:
+        path = Path(value)
+        if path.is_absolute() or ".." in path.parts:
+            raise SyncError(f"{CONFIG_NAME}: `{key}` contains unsafe pattern `{value}`")
+    return tuple(values)
+
+
+def load_config(root: Path) -> PinConfig:
+    path = root / CONFIG_NAME
+    if not path.is_file():
+        raise SyncError(f"missing canonical pin file: {path}")
+    source = path.read_text()
+    config = PinConfig(
+        repository=parse_string_setting(source, "repository"),
+        revision=parse_string_setting(source, "revision"),
+        manifest_patterns=parse_list_setting(source, "manifest_patterns"),
+        lockfile_patterns=parse_list_setting(source, "lockfile_patterns"),
+    )
+    if not TEMPER_REPOSITORY.fullmatch(config.repository):
+        raise SyncError(f"{CONFIG_NAME}: repository must be an HTTPS GitHub URL ending in /temper.git")
+    validate_revision(config.revision, f"{CONFIG_NAME} revision")
+    return config
+
+
+def validate_revision(revision: str, label: str = "revision") -> None:
+    if not FULL_REVISION.fullmatch(revision):
+        raise SyncError(f"{label} must be an exact 40-character lowercase Git commit")
+
+
+def discover(root: Path, patterns: tuple[str, ...]) -> list[Path]:
+    return sorted(
+        {
+            path
+            for pattern in patterns
+            for path in root.glob(pattern)
+            if path.is_file()
+            and not EXCLUDED_DIRECTORIES.intersection(path.relative_to(root).parts)
+        }
+    )
+
+
+def line_number(source: str, offset: int) -> int:
+    return source.count("\n", 0, offset) + 1
+
+
+def is_commented_line(source: str, offset: int) -> bool:
+    line_start = source.rfind("\n", 0, offset) + 1
+    prefix = source[line_start:offset]
+    in_string = False
+    escaped = False
+    for character in prefix:
+        if character == "\\" and in_string:
+            escaped = not escaped
+            continue
+        if character == '"' and not escaped:
+            in_string = not in_string
+        elif character == "#" and not in_string:
+            return True
+        escaped = False
+    return False
+
+
+def matching_brace(source: str, opening: int) -> int | None:
+    depth = 0
+    in_string = False
+    escaped = False
+    for index in range(opening, len(source)):
+        character = source[index]
+        if character == "\\" and in_string:
+            escaped = not escaped
+            continue
+        if character == '"' and not escaped:
+            in_string = not in_string
+        elif not in_string:
+            if character == "{":
+                depth += 1
+            elif character == "}":
+                depth -= 1
+                if depth == 0:
+                    return index + 1
+        escaped = False
+    return None
+
+
+def dependency_span(source: str, repository_start: int) -> tuple[int, int]:
+    opening = source.rfind("{", 0, repository_start)
+    if opening >= 0:
+        closing = matching_brace(source, opening)
+        if closing is not None and closing > repository_start:
+            return opening, closing
+        if source.rfind("}", opening, repository_start) < 0:
+            raise SyncError(f"line {line_number(source, repository_start)}: unclosed inline dependency table")
+
+    header_start = source.rfind("\n[", 0, repository_start)
+    header_start = 0 if header_start < 0 and source.startswith("[") else header_start + 1
+    if header_start < 0:
+        raise SyncError(f"line {line_number(source, repository_start)}: Temper Git source is not in a dependency table")
+    header_end = source.find("\n", header_start)
+    header = source[header_start : len(source) if header_end < 0 else header_end]
+    if "dependencies." not in header:
+        raise SyncError(f"line {line_number(source, repository_start)}: Temper Git source is not in a dependency table")
+    next_header = source.find("\n[", repository_start)
+    return header_start, len(source) if next_header < 0 else next_header + 1
+
+
+def dependencies(source: str) -> list[TemperDependency]:
+    found: list[TemperDependency] = []
+    seen_spans: set[tuple[int, int]] = set()
+    for repository_match in TEMPER_REPOSITORY.finditer(source):
+        if is_commented_line(source, repository_match.start()):
+            continue
+        start, end = dependency_span(source, repository_match.start())
+        if (start, end) in seen_spans:
+            continue
+        seen_spans.add((start, end))
+        block = source[start:end]
+        selectors = list(PIN_ASSIGNMENT.finditer(block))
+        if len(selectors) > 1:
+            raise SyncError(f"line {line_number(source, start)}: Temper dependency has multiple rev/branch/tag selectors")
+        selector = selectors[0] if selectors else None
+        found.append(
+            TemperDependency(
+                start=start,
+                end=end,
+                line=line_number(source, repository_match.start()),
+                repository=repository_match.group(0),
+                selector=selector.group("key") if selector else None,
+                value=selector.group("value") if selector else None,
+            )
+        )
+    return found
+
+
+def manifest_violations(path: Path, root: Path, source: str, config: PinConfig) -> list[str]:
+    violations: list[str] = []
+    relative = path.relative_to(root)
+    try:
+        manifest_dependencies = dependencies(source)
+    except SyncError as error:
+        return [f"{relative}: {error}"]
+    for dependency in manifest_dependencies:
+        prefix = f"{relative}:{dependency.line}"
+        if dependency.repository != config.repository:
+            violations.append(
+                f"{prefix}: mixed repository `{dependency.repository}`; expected `{config.repository}`"
+            )
+        if dependency.selector == "branch":
+            violations.append(f"{prefix}: moving branch `{dependency.value}` is forbidden")
+        elif dependency.selector == "tag":
+            violations.append(f"{prefix}: tag `{dependency.value}` is forbidden; use the immutable revision")
+        elif dependency.selector != "rev":
+            violations.append(f"{prefix}: missing immutable `rev` selector")
+        elif not dependency.value or not FULL_REVISION.fullmatch(dependency.value):
+            violations.append(
+                f"{prefix}: malformed revision `{dependency.value}`; expected a 40-character lowercase commit"
+            )
+        elif dependency.value != config.revision:
+            violations.append(
+                f"{prefix}: revision `{dependency.value}` does not match `{config.revision}`"
+            )
+    return violations
+
+
+def rewrite_manifest(source: str, repository: str, revision: str) -> tuple[str, int]:
+    manifest_dependencies = dependencies(source)
+    updated = source
+    for dependency in reversed(manifest_dependencies):
+        block = updated[dependency.start : dependency.end]
+        block = TEMPER_REPOSITORY.sub(repository, block)
+        selector = PIN_ASSIGNMENT.search(block)
+        if selector:
+            block = block[: selector.start()] + f'rev = "{revision}"' + block[selector.end() :]
+        elif block.startswith("{"):
+            insertion = block.rfind("}")
+            separator = "" if block[:insertion].rstrip().endswith("{") else ", "
+            block = block[:insertion].rstrip() + f'{separator}rev = "{revision}" ' + block[insertion:]
+        else:
+            git_line_end = block.find("\n", block.find("git"))
+            if git_line_end < 0:
+                git_line_end = len(block)
+            block = block[:git_line_end] + f'\nrev = "{revision}"' + block[git_line_end:]
+        updated = updated[: dependency.start] + block + updated[dependency.end :]
+    return updated, len(manifest_dependencies)
+
+
+def lock_entries(source: str) -> list[tuple[str, str, str, str]]:
+    entries: list[tuple[str, str, str, str]] = []
+    for package in source.split("[[package]]")[1:]:
+        name_match = PACKAGE_NAME.search(package)
+        source_match = LOCK_SOURCE.search(package)
+        if name_match and source_match:
+            entries.append(
+                (
+                    name_match.group("name"),
+                    source_match.group("repository"),
+                    source_match.group("selector"),
+                    source_match.group("resolved"),
+                )
+            )
+    return entries
+
+
+def lockfile_violations(path: Path, root: Path, source: str, config: PinConfig) -> list[str]:
+    violations: list[str] = []
+    relative = path.relative_to(root)
+    for name, repository, selector, resolved in lock_entries(source):
+        expected_selector = f"rev={config.revision}"
+        if repository != config.repository:
+            violations.append(f"{relative}: package `{name}` uses mixed repository `{repository}`")
+        if selector != expected_selector:
+            violations.append(
+                f"{relative}: package `{name}` selector `{selector}` does not match `{expected_selector}`"
+            )
+        if resolved != config.revision:
+            violations.append(
+                f"{relative}: package `{name}` resolves `{resolved}` instead of `{config.revision}`"
+            )
+    return violations
+
+
+def replace_config_revision(source: str, revision: str) -> str:
+    return re.sub(
+        r'^(revision\s*=\s*)"[^"]+"\s*$',
+        rf'\1"{revision}"',
+        source,
+        count=1,
+        flags=re.MULTILINE,
+    )
+
+
+def check(root: Path, config: PinConfig) -> tuple[list[str], int, int]:
+    violations: list[str] = []
+    dependency_count = 0
+    lock_entry_count = 0
+    for manifest in discover(root, config.manifest_patterns):
+        source = manifest.read_text()
+        try:
+            dependency_count += len(dependencies(source))
+        except SyncError:
+            pass
+        violations.extend(manifest_violations(manifest, root, source, config))
+    for lockfile in discover(root, config.lockfile_patterns):
+        source = lockfile.read_text()
+        lock_entry_count += len(lock_entries(source))
+        violations.extend(lockfile_violations(lockfile, root, source, config))
+    return violations, dependency_count, lock_entry_count
+
+
+def synchronize(root: Path, config: PinConfig, revision: str) -> tuple[int, int, int, int]:
+    validate_revision(revision)
+    manifests = discover(root, config.manifest_patterns)
+    lockfiles = discover(root, config.lockfile_patterns)
+    originals = {path: path.read_text() for path in [root / CONFIG_NAME, *manifests, *lockfiles]}
+    changed_manifests = 0
+    dependency_count = 0
+    refreshed_lockfiles = 0
+    lock_entry_count = 0
+    try:
+        for manifest in manifests:
+            updated, count = rewrite_manifest(originals[manifest], config.repository, revision)
+            dependency_count += count
+            if updated != originals[manifest]:
+                manifest.write_text(updated)
+                changed_manifests += 1
+
+        for lockfile in lockfiles:
+            entries = lock_entries(originals[lockfile])
+            lock_entry_count += len(entries)
+            if not entries:
+                continue
+            manifest = lockfile.with_name("Cargo.toml")
+            if not manifest.is_file():
+                raise SyncError(f"{lockfile.relative_to(root)} has Temper entries but no sibling Cargo.toml")
+            package = entries[0][0]
+            command = [
+                "cargo",
+                "update",
+                "--manifest-path",
+                str(manifest),
+                "-p",
+                package,
+                "--precise",
+                revision,
+            ]
+            result = subprocess.run(command, cwd=root, text=True, capture_output=True, check=False)
+            if result.returncode != 0:
+                detail = result.stderr.strip() or result.stdout.strip()
+                raise SyncError(f"Cargo failed to refresh {lockfile.relative_to(root)}: {detail}")
+            refreshed_lockfiles += 1
+
+        config_path = root / CONFIG_NAME
+        config_path.write_text(replace_config_revision(originals[config_path], revision))
+        updated_config = load_config(root)
+        violations, _, _ = check(root, updated_config)
+        if violations:
+            raise SyncError("synchronization left stale pins:\n" + "\n".join(f"- {item}" for item in violations))
+    except (OSError, SyncError) as error:
+        for path, source in originals.items():
+            if path.exists() and path.read_text() != source:
+                path.write_text(source)
+        if isinstance(error, SyncError):
+            raise
+        raise SyncError(str(error)) from error
+    return dependency_count, lock_entry_count, changed_manifests, refreshed_lockfiles
+
+
+def main() -> int:
+    args = parse_args()
+    root = args.root.resolve()
+    try:
+        config = load_config(root)
+        if args.check:
+            if args.revision:
+                raise SyncError("--check reads the revision from .temper-kernel.toml; do not pass a revision")
+            violations, dependencies_found, lock_entries_found = check(root, config)
+            if violations:
+                raise SyncError("Temper kernel pin check failed:\n" + "\n".join(f"- {item}" for item in violations))
+            print(
+                f"verified {dependencies_found} manifest dependencies and "
+                f"{lock_entries_found} lockfile entries"
+            )
+            return 0
+        if not args.revision:
+            raise SyncError("provide a 40-character revision, or use --check")
+        dependency_count, lock_entry_count, changed_manifests, refreshed_lockfiles = synchronize(
+            root, config, args.revision
+        )
+        print(
+            f"synchronized {dependency_count} manifest dependencies in {changed_manifests} manifests; "
+            f"refreshed {lock_entry_count} entries across {refreshed_lockfiles} lockfiles"
+        )
+        return 0
+    except SyncError as error:
+        print(error, file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
