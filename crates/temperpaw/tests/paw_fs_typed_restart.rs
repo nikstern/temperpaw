@@ -132,10 +132,26 @@ async fn typed_file_client_reads_honest_optional_metadata_after_persistent_resta
     drop(state);
 
     let restarted = build_state("pawfs-after-restart", store, temp.path());
+    let response = app(restarted.clone())
+        .oneshot(
+            Request::get(format!("/tdata/Files('{file_id}')/$value"))
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .expect("restarted PawFS $value read responds");
+    assert_eq!(response.status(), StatusCode::OK);
+    let restarted_content = axum::body::to_bytes(response.into_body(), 1024 * 1024)
+        .await
+        .expect("restarted PawFS content reads");
+    assert_eq!(restarted_content.as_ref(), b"typed restart proof");
+
     let persisted = restarted
         .get_tenant_entity_state(&TenantId::default(), "File", file_id)
         .await
         .expect("File rehydrates from persistent state");
+    assert_eq!(persisted.state.status, "Ready");
+    assert_eq!(persisted.state.fields["has_content"], true);
     let manifest: ModuleSdkManifest =
         serde_json::from_str(MANIFEST_JSON).expect("generated manifest decodes");
     let file_schema = manifest
@@ -143,6 +159,26 @@ async fn typed_file_client_reads_honest_optional_metadata_after_persistent_resta
         .iter()
         .find(|entity| entity.entity_type == "Paw.FS.File")
         .expect("generated File schema exists");
+    for property in ["DirectoryId", "CreatedAt", "UpdatedAt"] {
+        assert!(
+            file_schema
+                .properties
+                .iter()
+                .find(|candidate| candidate.canonical_name == property)
+                .expect("generated optional property exists")
+                .nullable,
+            "{property} must generate as optional"
+        );
+    }
+    assert!(
+        !file_schema
+            .properties
+            .iter()
+            .find(|property| property.canonical_name == "WorkspaceId")
+            .expect("generated WorkspaceId property exists")
+            .nullable,
+        "WorkspaceId must remain required for workspace isolation"
+    );
     let typed_response = match temper_server::application_data::canonicalize_entity_for_test(
         file_schema,
         &persisted.state,

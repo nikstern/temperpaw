@@ -1,3 +1,6 @@
+#![allow(dead_code)]
+#![allow(clippy::new_without_default)]
+
 include!(concat!(env!("OUT_DIR"), "/pawfs_file_client.rs"));
 
 pub const MANIFEST_JSON: &str =
