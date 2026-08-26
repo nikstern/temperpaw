@@ -6,7 +6,7 @@
       <EntityType Name="Session">
         <Key><PropertyRef Name="Id"/></Key>
         <Property Name="Id" Type="Edm.String" Nullable="false"/>
-        <Property Name="Status" Type="Edm.String"/>
+        <Property Name="Status" Type="Edm.String" DefaultValue="Created"/>
         <Property Name="Model" Type="Edm.String"/>
         <Property Name="Provider" Type="Edm.String"/>
         <Property Name="ProviderOptionsJson" Type="Edm.String"/>
