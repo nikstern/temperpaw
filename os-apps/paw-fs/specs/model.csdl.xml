@@ -111,7 +111,7 @@
         <Property Name="Name" Type="Edm.String" Nullable="false"/>
         <Property Name="Path" Type="Edm.String" Nullable="false"/>
         <Property Name="Status" Type="Paw.FS.FileStatus" Nullable="false"/>
-        <Property Name="DirectoryId" Type="Edm.Guid" Nullable="false"/>
+        <Property Name="DirectoryId" Type="Edm.Guid"/>
         <Property Name="WorkspaceId" Type="Edm.Guid" Nullable="false"/>
         <Property Name="VersionCount" Type="Edm.Int32" DefaultValue="0"/>
         <Property Name="SizeBytes" Type="Edm.Int64" DefaultValue="0"/>
@@ -119,8 +119,8 @@
         <Property Name="ContentHash" Type="Edm.String"/>
         <Property Name="MimeType" Type="Edm.String"/>
         <Property Name="LastVersionId" Type="Edm.Guid"/>
-        <Property Name="CreatedAt" Type="Edm.DateTimeOffset" Nullable="false"/>
-        <Property Name="UpdatedAt" Type="Edm.DateTimeOffset" Nullable="false"/>
+        <Property Name="CreatedAt" Type="Edm.DateTimeOffset"/>
+        <Property Name="UpdatedAt" Type="Edm.DateTimeOffset"/>
         <NavigationProperty Name="Directory" Type="Paw.FS.Directory">
           <ReferentialConstraint Property="DirectoryId" ReferencedProperty="Id"/>
         </NavigationProperty>
