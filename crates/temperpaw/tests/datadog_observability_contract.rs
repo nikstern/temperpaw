@@ -91,8 +91,8 @@ fn collect_named_files(
 #[test]
 fn temper_dependencies_use_one_fork_and_revision() {
     const EXPECTED_URL: &str = "https://github.com/nikstern/temper.git";
-    const EXPECTED_REV: &str = "0ee5cf19";
-    const EXPECTED_COMMIT: &str = "0ee5cf195434bd35fa843f3ff4118095ef0a9b36";
+    const EXPECTED_REV: &str = "e8ff002b";
+    const EXPECTED_COMMIT: &str = "e8ff002bde3e9512385c2856d733210600e7c253";
 
     let root = repo_root();
     let mut manifests = Vec::new();
