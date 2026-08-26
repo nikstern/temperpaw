@@ -3974,6 +3974,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "pawfs-typed-client-fixture"
+version = "0.0.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "temper-codegen",
+ "temper-spec",
+ "temper-wasm-sdk",
+]
+
+[[package]]
 name = "peeking_take_while"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6344,6 +6355,7 @@ dependencies = [
  "jsonwebtoken",
  "opentelemetry",
  "paw-transport",
+ "pawfs-typed-client-fixture",
  "rand 0.9.4",
  "reqwest",
  "serde",
@@ -6359,6 +6371,7 @@ dependencies = [
  "temper-spec",
  "temper-store-postgres",
  "temper-store-turso",
+ "temper-wasm-sdk",
  "tempfile",
  "time",
  "tokio",

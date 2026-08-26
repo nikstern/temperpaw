@@ -79,5 +79,8 @@ cliclack = "0.3"
 [dev-dependencies]
 tempfile = "3"
 temper-spec = { git = "https://github.com/nikstern/temper.git", rev = "e8ff002b" }
+temper-server = { git = "https://github.com/nikstern/temper.git", rev = "e8ff002b", features = ["test-helpers"] }
+temper-wasm-sdk = { git = "https://github.com/nikstern/temper.git", rev = "e8ff002b", features = ["test-helpers"] }
+pawfs-typed-client-fixture = { path = "tests/fixtures/pawfs-typed-client" }
 toml = "0.8"
 tower = "0.5"
