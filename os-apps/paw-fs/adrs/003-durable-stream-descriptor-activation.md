@@ -38,6 +38,13 @@ is backfilled through Temper's idempotent, durable migration pages. Application
 fields, including `SizeBytes`, are never aliases or fallback authority for the
 descriptor.
 
+When installed-app reconciliation finds that migration evidence is incomplete,
+TemperPaw enters an unready maintenance mode instead of activating PawFS or
+exiting. Liveness and the authenticated governed stream-descriptor migration
+routes remain available; normal application routes remain startup-gated. After
+the migration completes, an operator restarts TemperPaw and reconciliation
+rechecks the durable completion evidence before activation.
+
 ## Consequences
 
 - New `$value` writes commit a host-attested descriptor with the corresponding
@@ -51,6 +58,8 @@ descriptor.
 - Deployments with historical streams must finish and retain migration evidence
   before installing the activated PawFS schema. Rollback binaries must preserve
   descriptor metadata even if the activation marker is removed.
+- A migration-required deployment remains observable and operable without
+  advertising readiness or exposing ordinary application traffic.
 
 ## Alternatives Rejected
 

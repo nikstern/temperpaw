@@ -587,7 +587,11 @@ async fn startup_gate_middleware(
     next: axum::middleware::Next,
 ) -> axum::response::Response {
     let path = request.uri().path();
-    if readiness.is_ready() || path == "/healthz" || path == "/readyz" {
+    if readiness.is_ready()
+        || path == "/healthz"
+        || path == "/readyz"
+        || path.starts_with("/api/v1/schema-deployments/stream-descriptor-migrations")
+    {
         return next.run(request).await;
     }
 
@@ -1936,6 +1940,7 @@ pub async fn run(mut config: Config, force_soul_setup: bool) -> Result<()> {
     }
 
     let mut reconcile_errors = Vec::new();
+    let mut migration_requirements = Vec::new();
     for app_name in &startup_app_order {
         let app_started = Instant::now();
         if get_os_app(app_name).is_none() {
@@ -1981,7 +1986,7 @@ pub async fn run(mut config: Config, force_soul_setup: bool) -> Result<()> {
                     descriptor_contract_version,
                     "  Stream descriptor migration required before OS app activation"
                 );
-                reconcile_errors.push(error);
+                migration_requirements.push(error);
             }
             Err(error) => {
                 record_os_app_reconcile(app_name, "error", app_started.elapsed());
@@ -1997,6 +2002,15 @@ pub async fn run(mut config: Config, force_soul_setup: bool) -> Result<()> {
             reconcile_errors.len(),
             reconcile_errors.join("; ")
         );
+    }
+
+    if !migration_requirements.is_empty() {
+        tracing::error!(
+            requirements = %migration_requirements.join("; "),
+            "Startup remains unready while governed stream descriptor migration is required; use /api/v1/schema-deployments/stream-descriptor-migrations and restart after completion"
+        );
+        serve_handle.await??;
+        return Ok(());
     }
 
     // Safety net: commit all specs for the tenant.

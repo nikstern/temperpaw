@@ -1990,8 +1990,7 @@ fn startup_blocks_readiness_with_actionable_stream_migration_evidence() {
     }
 
     assert!(
-        startup.contains("migration_requirements")
-            && startup.contains("serve_handle.await??"),
+        startup.contains("migration_requirements") && startup.contains("serve_handle.await??"),
         "migration-required startup must remain alive in unready maintenance mode"
     );
     assert!(

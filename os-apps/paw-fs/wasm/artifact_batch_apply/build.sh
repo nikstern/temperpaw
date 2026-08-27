@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/../../../wasm-build-env.sh"
 cd "$SCRIPT_DIR"
-cargo build --target wasm32-unknown-unknown --release
+cargo build --locked --target wasm32-unknown-unknown --release
 
 cp target/wasm32-unknown-unknown/release/artifact_batch_apply.wasm "$SCRIPT_DIR/artifact_batch_apply.wasm"
 cp target/wasm32-unknown-unknown/release/artifact_batch_apply.wasm "$SCRIPT_DIR/../artifact_batch_apply.wasm"

@@ -131,6 +131,7 @@ async fn startup_recovers_source_intent_committed_before_process_exit() {
         state_timeout: None,
         collection: None,
         schema_pin: None,
+        source_stream_descriptor: None,
     };
     let mut payload = serde_json::json!({
         "action": "Confirm",
@@ -154,6 +155,7 @@ async fn startup_recovers_source_intent_committed_before_process_exit() {
                     correlation_id: sim_uuid(),
                     timestamp: sim_now(),
                     actor_id: format!("{tenant_name}:Order:order-1"),
+                    kernel: None,
                 },
             }],
         )
