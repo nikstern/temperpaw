@@ -72,11 +72,16 @@
 
 ## What Didn't Work
 
-- Loopback-binding tests fail with `PermissionDenied` in the filesystem/network
-  sandbox; the same tests pass with loopback permission.
-- The first installation attempt after migration intentionally did not activate:
-  PawFS bootstrap content changed the inventory generation, proving the fence
-  catches deployment-time writes. Resuming the durable job resolved it.
+No product behavior remains broken in the verified local scope.
+
+Two expected validation observations are worth retaining:
+
+- The restricted Codex sandbox denies loopback binds. The full suite, including
+  those tests, passed when run with loopback permission; this is an execution
+  environment constraint, not a TemperPaw defect.
+- The first installation attempt intentionally remained fenced because PawFS
+  bootstrap content advanced the stream generation. Resuming the durable job
+  completed migration and allowed activation, demonstrating the safety contract.
 
 ## Limitations
 
