@@ -12,6 +12,7 @@ use temper_server::registry::{
 use temper_server::{ServerState, StorageStack, build_router};
 use temper_spec::csdl::parse_csdl;
 use temper_store_turso::TursoEventStore;
+use temper_wasm_sdk::data::{DataOperationKind, FileOperationKind};
 use tower::ServiceExt;
 
 const PAWFS_CSDL: &str = include_str!("../../../os-apps/paw-fs/specs/model.csdl.xml");
@@ -159,6 +160,30 @@ async fn typed_file_client_reads_honest_optional_metadata_after_persistent_resta
         .iter()
         .find(|entity| entity.entity_type == "Paw.FS.File")
         .expect("generated File schema exists");
+    assert!(
+        manifest.grant.operations.contains(&DataOperationKind::FileRead),
+        "generated PawFS fixture must grant typed stream reads"
+    );
+    let file_grant = manifest
+        .grant
+        .entities
+        .iter()
+        .find(|entity| entity.entity_type == "Paw.FS.File")
+        .expect("generated File grant exists");
+    for operation in [
+        FileOperationKind::ContentRead,
+        FileOperationKind::VersionRead,
+    ] {
+        assert!(
+            file_grant.file_operations.contains(&operation),
+            "generated PawFS fixture must grant {operation:?}"
+        );
+    }
+    assert_eq!(
+        manifest.stream_capabilities.len(),
+        2,
+        "generated PawFS fixture must bind both File and FileVersion descriptor contracts"
+    );
     for property in ["DirectoryId", "CreatedAt", "UpdatedAt"] {
         assert!(
             file_schema
