@@ -1964,6 +1964,25 @@ pub async fn run(mut config: Config, force_soul_setup: bool) -> Result<()> {
                 record_os_app_reconcile(app_name, "installed", app_started.elapsed());
                 tracing::info!("  Reconciled {app_name}: {install:?}");
             }
+            Ok(OsAppReconcileResult::MigrationRequired {
+                app_name: migration_app_name,
+                semantic_digest,
+                capability_digest,
+                descriptor_contract_version,
+            }) => {
+                record_os_app_reconcile(app_name, "migration_required", app_started.elapsed());
+                let error = format!(
+                    "OS app '{migration_app_name}' requires governed stream descriptor migration before activation (semantic_digest={semantic_digest}, capability_digest={capability_digest}, descriptor_contract_version={descriptor_contract_version})"
+                );
+                tracing::error!(
+                    app = %migration_app_name,
+                    %semantic_digest,
+                    %capability_digest,
+                    descriptor_contract_version,
+                    "  Stream descriptor migration required before OS app activation"
+                );
+                reconcile_errors.push(error);
+            }
             Err(error) => {
                 record_os_app_reconcile(app_name, "error", app_started.elapsed());
                 tracing::error!("  Failed to reconcile {app_name}: {error}");
@@ -5318,6 +5337,10 @@ mod tests {
         let app = runtime_router_with_startup_gates(
             Router::new()
                 .route("/healthz", get(|| async { StatusCode::OK }))
+                .route(
+                    "/api/v1/schema-deployments/stream-descriptor-migrations",
+                    get(|| async { StatusCode::OK }),
+                )
                 .route("/probe", get(|| async { StatusCode::OK })),
             readiness.clone(),
             None,
@@ -5348,6 +5371,15 @@ mod tests {
             .await
             .expect("probe request");
         assert_eq!(probe.status(), StatusCode::SERVICE_UNAVAILABLE);
+
+        let migration = client
+            .get(format!(
+                "http://{addr}/api/v1/schema-deployments/stream-descriptor-migrations"
+            ))
+            .send()
+            .await
+            .expect("stream descriptor migration request");
+        assert_eq!(migration.status(), StatusCode::OK);
 
         readiness.mark_ready();
 

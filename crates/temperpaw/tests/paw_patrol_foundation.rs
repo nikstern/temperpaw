@@ -1964,7 +1964,7 @@ fn startup_rehydrates_os_app_verification_for_unchanged_apps() {
 }
 
 #[test]
-fn startup_fails_closed_with_actionable_stream_migration_evidence() {
+fn startup_blocks_readiness_with_actionable_stream_migration_evidence() {
     let startup = read(repo_root().join("crates/temperpaw/src/startup.rs"));
 
     let migration_start = startup
@@ -1977,7 +1977,8 @@ fn startup_fails_closed_with_actionable_stream_migration_evidence() {
     let migration_branch = &startup[migration_start..error_start];
 
     for needle in [
-        "record_os_app_reconcile(app_name, \"migration_required\"",
+        "record_os_app_reconcile(",
+        "\"migration_required\"",
         "semantic_digest",
         "capability_digest",
         "descriptor_contract_version",
@@ -1987,6 +1988,18 @@ fn startup_fails_closed_with_actionable_stream_migration_evidence() {
             "migration-required startup failure should retain actionable evidence: {needle}"
         );
     }
+
+    assert!(
+        startup.contains("migration_requirements")
+            && startup.contains("serve_handle.await??"),
+        "migration-required startup must remain alive in unready maintenance mode"
+    );
+    assert!(
+        startup.contains(
+            "path.starts_with(\"/api/v1/schema-deployments/stream-descriptor-migrations\")"
+        ),
+        "startup gate must expose the governed stream descriptor migration API"
+    );
 }
 
 #[test]
