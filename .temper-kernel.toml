@@ -1,4 +1,4 @@
 repository = "https://github.com/nikstern/temper.git"
-revision = "fdaae355c77aea72ef490154eaebd9c7044fee42"
+revision = "e3dfe852e7a7373cef8bddfe2e3b8bcad8f94a0a"
 manifest_patterns = ["Cargo.toml", "crates/**/Cargo.toml", "os-apps/**/Cargo.toml", "reference-projects/**/Cargo.toml"]
 lockfile_patterns = ["Cargo.lock", "crates/**/Cargo.lock", "os-apps/**/Cargo.lock"]

@@ -92,11 +92,33 @@ fn paw_fs_versioning_contract_uses_no_legacy_reactions_file() {
 }
 
 #[test]
-fn streamed_files_declare_their_mutability_contract() {
+fn paw_fs_activates_closed_durable_stream_descriptor_semantics() {
     let csdl = read(repo_root().join("os-apps/paw-fs/specs/model.csdl.xml"));
 
-    assert!(
-        csdl.contains("<Annotation Term=\"Temper.Vocab.Stream.Mutability\" String=\"Mutable\"/>"),
-        "Paw.FS.File must declare its existing mutable stream behavior"
+    for needle in [
+        "<Annotation Term=\"Temper.Vocab.Stream.Mutability\" String=\"Mutable\"/>",
+        "<Annotation Term=\"Temper.Vocab.Stream.VersionEntityType\" String=\"Paw.FS.FileVersion\"/>",
+        "<Annotation Term=\"Temper.Vocab.Stream.VersionCollection\" NavigationPropertyPath=\"Versions\"/>",
+        "<Annotation Term=\"Temper.Vocab.Stream.MigrationPublicationAction\" String=\"StreamUpdated\"/>",
+        "<Annotation Term=\"Temper.Vocab.Stream.MigrationPublicationAction\" String=\"Create\"/>",
+        "<Annotation Term=\"Temper.Vocab.Stream.MigrationContentHashParameter\" String=\"content_hash\"/>",
+        "<Annotation Term=\"Temper.Vocab.Stream.MigrationByteLengthParameter\" String=\"size_bytes\"/>",
+        "<Annotation Term=\"Temper.Vocab.Stream.MigrationContentTypeParameter\" String=\"mime_type\"/>",
+        "<Annotation Term=\"Temper.Vocab.Stream.MigrationAuthorizationParentParameter\" String=\"file_id\"/>",
+        "<Annotation Term=\"Temper.Vocab.Stream.MigrationStorageContractVersion\" Int=\"1\"/>",
+        "<Annotation Term=\"Temper.Vocab.Stream.MigrationStorageKeyPrefix\" String=\"temper-fs/\"/>",
+        "<Annotation Term=\"Temper.Vocab.Stream.Mutability\" String=\"Immutable\"/>",
+        "<Annotation Term=\"Temper.Vocab.Stream.AuthorizationParent\" NavigationPropertyPath=\"File\"/>",
+    ] {
+        assert!(csdl.contains(needle), "PawFS CSDL should contain {needle}");
+    }
+
+    assert_eq!(
+        csdl.matches(
+            "<Annotation Term=\"Temper.Vocab.Stream.DescriptorContractVersion\" Int=\"1\"/>"
+        )
+        .count(),
+        2,
+        "File and FileVersion must both activate descriptor contract V1"
     );
 }

@@ -587,7 +587,11 @@ async fn startup_gate_middleware(
     next: axum::middleware::Next,
 ) -> axum::response::Response {
     let path = request.uri().path();
-    if readiness.is_ready() || path == "/healthz" || path == "/readyz" {
+    if readiness.is_ready()
+        || path == "/healthz"
+        || path == "/readyz"
+        || path.starts_with("/api/v1/schema-deployments/stream-descriptor-migrations")
+    {
         return next.run(request).await;
     }
 
@@ -1936,6 +1940,7 @@ pub async fn run(mut config: Config, force_soul_setup: bool) -> Result<()> {
     }
 
     let mut reconcile_errors = Vec::new();
+    let mut migration_requirements = Vec::new();
     for app_name in &startup_app_order {
         let app_started = Instant::now();
         if get_os_app(app_name).is_none() {
@@ -1965,20 +1970,23 @@ pub async fn run(mut config: Config, force_soul_setup: bool) -> Result<()> {
                 tracing::info!("  Reconciled {app_name}: {install:?}");
             }
             Ok(OsAppReconcileResult::MigrationRequired {
+                app_name: migration_app_name,
                 semantic_digest,
                 capability_digest,
                 descriptor_contract_version,
-                ..
             }) => {
                 record_os_app_reconcile(app_name, "migration_required", app_started.elapsed());
                 let error = format!(
-                    "{app_name} requires a governed stream migration before activation \
-                     (semantic_digest={semantic_digest}, \
-                     capability_digest={capability_digest}, \
-                     descriptor_contract_version={descriptor_contract_version})"
+                    "OS app '{migration_app_name}' requires governed stream descriptor migration before activation (semantic_digest={semantic_digest}, capability_digest={capability_digest}, descriptor_contract_version={descriptor_contract_version})"
                 );
-                tracing::error!("  {error}");
-                reconcile_errors.push(error);
+                tracing::error!(
+                    app = %migration_app_name,
+                    %semantic_digest,
+                    %capability_digest,
+                    descriptor_contract_version,
+                    "  Stream descriptor migration required before OS app activation"
+                );
+                migration_requirements.push(error);
             }
             Err(error) => {
                 record_os_app_reconcile(app_name, "error", app_started.elapsed());
@@ -1994,6 +2002,15 @@ pub async fn run(mut config: Config, force_soul_setup: bool) -> Result<()> {
             reconcile_errors.len(),
             reconcile_errors.join("; ")
         );
+    }
+
+    if !migration_requirements.is_empty() {
+        tracing::error!(
+            requirements = %migration_requirements.join("; "),
+            "Startup remains unready while governed stream descriptor migration is required; use /api/v1/schema-deployments/stream-descriptor-migrations and restart after completion"
+        );
+        serve_handle.await??;
+        return Ok(());
     }
 
     // Safety net: commit all specs for the tenant.
@@ -5334,6 +5351,10 @@ mod tests {
         let app = runtime_router_with_startup_gates(
             Router::new()
                 .route("/healthz", get(|| async { StatusCode::OK }))
+                .route(
+                    "/api/v1/schema-deployments/stream-descriptor-migrations",
+                    get(|| async { StatusCode::OK }),
+                )
                 .route("/probe", get(|| async { StatusCode::OK })),
             readiness.clone(),
             None,
@@ -5364,6 +5385,15 @@ mod tests {
             .await
             .expect("probe request");
         assert_eq!(probe.status(), StatusCode::SERVICE_UNAVAILABLE);
+
+        let migration = client
+            .get(format!(
+                "http://{addr}/api/v1/schema-deployments/stream-descriptor-migrations"
+            ))
+            .send()
+            .await
+            .expect("stream descriptor migration request");
+        assert_eq!(migration.status(), StatusCode::OK);
 
         readiness.mark_ready();
 

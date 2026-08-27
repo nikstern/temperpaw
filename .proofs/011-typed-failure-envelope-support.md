@@ -12,7 +12,7 @@
 - Draft PR: <https://github.com/nikstern/temperpaw/pull/21>
 - Red contract commit: `3d12954a`
 - Selected Temper source: `https://github.com/nikstern/temper.git`
-- Selected Temper commit: `fdaae355c77aea72ef490154eaebd9c7044fee42`
+- Selected Temper commit: `e3dfe852e7a7373cef8bddfe2e3b8bcad8f94a0a`
 - Required Temper changes: merged <https://github.com/nikstern/temper/pull/66>
   plus draft dependency <https://github.com/nikstern/temper/pull/75>
 
@@ -58,7 +58,7 @@ cargo test -p temperpaw --test typed_failure_conformance typed_failure_v1_route_
 cargo test -p temperpaw --test typed_failure_conformance legacy_on_failure_callback_still_executes_unchanged -- --exact --nocapture
 # PASS
 
-scripts/sync-temper-kernel fdaae355c77aea72ef490154eaebd9c7044fee42
+scripts/sync-temper-kernel e3dfe852e7a7373cef8bddfe2e3b8bcad8f94a0a
 scripts/sync-temper-kernel --check
 # verified 95 manifest dependencies and 159 lockfile entries
 
@@ -75,8 +75,8 @@ cargo build --locked --release --target wasm32-unknown-unknown --manifest-path <
 
 # Exact `.github/workflows/ci.yml` WASM build-script list, followed by:
 bash scripts/verify_route_message_wasm.sh
-# hash=907ce93015869a813b025dad0e6465e0895ed6fc537ffd03d7d353a9b8346320
-# size_bytes=544074
+# hash=56a168df23ba81edb0b153b15ad3915b682d8631ab0db2f30dfd5c5fa8977c91
+# size_bytes=544131
 
 python3 -m unittest scripts.tests.test_sync_temper_kernel -v
 cargo clippy --locked -p temperpaw -p paw-codex-worker --all-targets -- -D warnings
@@ -96,7 +96,7 @@ GET http://127.0.0.1:34795/readyz
 - The legacy control proves the upgrade does not require product-spec migration.
 - Cargo introduced `temper-failure` consistently into affected lockfiles.
 - The final module SDK closure and dependency lock digest are
-  `sha256:d4c157a836cc82a4f27f9f8236e142ec9e882a1743ee254f3b57ee55503eb9c9`.
+  `sha256:242511156105b4614dfc15c0bbe5e19d00d9b17e75bc88cabe9c94c6b0054230`.
 - The fresh boot installed all ten startup apps, including the bound
   `plan_approval_handler`, before readiness.
 
@@ -139,13 +139,13 @@ GET http://127.0.0.1:34795/readyz
 - `crates/temperpaw/tests/typed_failure_conformance.rs`
 - `crates/temperpaw/tests/fixtures/typed-failure-conformance/`
 - `docs/adrs/0066-typed-failure-envelope-platform-boundary.md`
-- `os-apps/paw-fs/adrs/003-explicit-mutable-file-stream-contract.md`
+- `os-apps/paw-fs/adrs/003-durable-stream-descriptor-activation.md`
 - Durable memory decision note: `201`
 
 ## Architecture Diagram
 
 ```text
-.temper-kernel.toml (nikstern/temper@fdaae355)
+.temper-kernel.toml (nikstern/temper@e3dfe852)
         |
         +--> server/parser/verifier/JIT/codegen
         |

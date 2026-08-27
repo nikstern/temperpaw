@@ -30,7 +30,7 @@ and `temper-wasm-sdk` dependency to one immutable `nikstern/temper` commit that
 contains the merge of PR #66 and the canonical local-module closure fix from
 PR #75:
 
-`fdaae355c77aea72ef490154eaebd9c7044fee42`
+`e3dfe852e7a7373cef8bddfe2e3b8bcad8f94a0a`
 
 The production source remains `https://github.com/nikstern/temper.git`, the
 same source already used by TemperPaw production. The canonical pin and
