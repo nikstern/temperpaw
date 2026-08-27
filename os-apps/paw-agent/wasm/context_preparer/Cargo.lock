@@ -199,7 +199,7 @@ dependencies = [
 [[package]]
 name = "temper-failure"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=fa1c4a594f4398c1570a3b3469cadd06efcb5043#fa1c4a594f4398c1570a3b3469cadd06efcb5043"
+source = "git+https://github.com/nikstern/temper.git?rev=fdaae355c77aea72ef490154eaebd9c7044fee42#fdaae355c77aea72ef490154eaebd9c7044fee42"
 dependencies = [
  "serde",
  "serde_json",
@@ -209,7 +209,7 @@ dependencies = [
 [[package]]
 name = "temper-wasm-sdk"
 version = "0.1.0"
-source = "git+https://github.com/nikstern/temper.git?rev=fa1c4a594f4398c1570a3b3469cadd06efcb5043#fa1c4a594f4398c1570a3b3469cadd06efcb5043"
+source = "git+https://github.com/nikstern/temper.git?rev=fdaae355c77aea72ef490154eaebd9c7044fee42#fdaae355c77aea72ef490154eaebd9c7044fee42"
 dependencies = [
  "serde",
  "serde_json",

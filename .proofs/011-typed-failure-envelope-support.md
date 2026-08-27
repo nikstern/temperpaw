@@ -12,7 +12,7 @@
 - Draft PR: <https://github.com/nikstern/temperpaw/pull/21>
 - Red contract commit: `3d12954a`
 - Selected Temper source: `https://github.com/nikstern/temper.git`
-- Selected Temper commit: `fa1c4a594f4398c1570a3b3469cadd06efcb5043`
+- Selected Temper commit: `fdaae355c77aea72ef490154eaebd9c7044fee42`
 - Required Temper changes: merged <https://github.com/nikstern/temper/pull/66>
   plus draft dependency <https://github.com/nikstern/temper/pull/75>
 
@@ -58,7 +58,7 @@ cargo test -p temperpaw --test typed_failure_conformance typed_failure_v1_route_
 cargo test -p temperpaw --test typed_failure_conformance legacy_on_failure_callback_still_executes_unchanged -- --exact --nocapture
 # PASS
 
-scripts/sync-temper-kernel fa1c4a594f4398c1570a3b3469cadd06efcb5043
+scripts/sync-temper-kernel fdaae355c77aea72ef490154eaebd9c7044fee42
 scripts/sync-temper-kernel --check
 # verified 95 manifest dependencies and 159 lockfile entries
 
@@ -75,8 +75,8 @@ cargo build --locked --release --target wasm32-unknown-unknown --manifest-path <
 
 # Exact `.github/workflows/ci.yml` WASM build-script list, followed by:
 bash scripts/verify_route_message_wasm.sh
-# hash=009e1e7149a4e611e6a34936f61ad00274e357b29e335974662ec4e24b2b89ac
-# size_bytes=544151
+# hash=907ce93015869a813b025dad0e6465e0895ed6fc537ffd03d7d353a9b8346320
+# size_bytes=544074
 
 python3 -m unittest scripts.tests.test_sync_temper_kernel -v
 cargo clippy --locked -p temperpaw -p paw-codex-worker --all-targets -- -D warnings
@@ -109,6 +109,10 @@ GET http://127.0.0.1:34795/readyz
   installation's root-only verification closure and the canonical closure used
   by SDK generation. Temper PR #75 fixes the root cause; no TemperPaw bypass was
   added.
+- Temper PR #75's first implementation exceeded the repository readability
+  ratchet by 11 lines. Moving closure resolution into the existing data-binding
+  module restored the maximum file size to the 2,779-line baseline; the ratchet,
+  focused regression, full platform tests, and clippy all pass at the final pin.
 - The first post-build boot correctly rejected `plan_approval_handler` after
   the CI build script overwrote the bound artifact with raw compiler output.
   Rebinding the final CI-built artifact restored the exact digest proof, and a
@@ -141,7 +145,7 @@ GET http://127.0.0.1:34795/readyz
 ## Architecture Diagram
 
 ```text
-.temper-kernel.toml (nikstern/temper@fa1c4a59)
+.temper-kernel.toml (nikstern/temper@fdaae355)
         |
         +--> server/parser/verifier/JIT/codegen
         |
