@@ -330,3 +330,21 @@ fn packaged_wasm_sdk_pins_match_temper_dependency_revision() {
         "packaged WASM manifests must pin temper-wasm-sdk to {expected_temper_rev}; stale: {stale:?}"
     );
 }
+
+#[test]
+fn paw_fs_wasm_builds_are_locked() {
+    let root = repo_root();
+    for module in ["artifact_batch_apply", "blob_adapter", "workspace_fs"] {
+        let module_dir = root.join("os-apps/paw-fs/wasm").join(module);
+        assert!(
+            module_dir.join("Cargo.lock").is_file(),
+            "PawFS WASM module {module} must check in its dependency lock"
+        );
+        let build = fs::read_to_string(module_dir.join("build.sh"))
+            .unwrap_or_else(|error| panic!("read {module} build script: {error}"));
+        assert!(
+            build.contains("cargo build --locked --target wasm32-unknown-unknown --release"),
+            "PawFS WASM module {module} must build from its checked-in lockfile"
+        );
+    }
+}
