@@ -81,6 +81,7 @@ tempfile = "3"
 temper-spec = { git = "https://github.com/nikstern/temper.git", rev = "e8ff002bde3e9512385c2856d733210600e7c253" }
 temper-server = { git = "https://github.com/nikstern/temper.git", rev = "e8ff002bde3e9512385c2856d733210600e7c253", features = ["test-helpers"] }
 temper-wasm-sdk = { git = "https://github.com/nikstern/temper.git", rev = "e8ff002bde3e9512385c2856d733210600e7c253", features = ["test-helpers"] }
+temper-verify = { git = "https://github.com/nikstern/temper.git", rev = "e8ff002bde3e9512385c2856d733210600e7c253" }
 pawfs-typed-client-fixture = { path = "tests/fixtures/pawfs-typed-client" }
 toml = "0.8"
 tower = "0.5"
