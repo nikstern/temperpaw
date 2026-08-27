@@ -11,5 +11,5 @@ crate-type = ["cdylib"]
 [dependencies]
 serde_json = "1"
 session-tree-lib = { path = "../session-tree-lib" }
-temper-wasm-sdk = { git = "https://github.com/nikstern/temper.git", rev = "d835447fa300b27cdb6355613f61b813dab90e1e" }
+temper-wasm-sdk = { git = "https://github.com/nikstern/temper.git", rev = "fa1c4a594f4398c1570a3b3469cadd06efcb5043" }
 wasm-helpers = { path = "../wasm-helpers" }

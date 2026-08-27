@@ -1964,6 +1964,20 @@ fn startup_rehydrates_os_app_verification_for_unchanged_apps() {
 }
 
 #[test]
+fn startup_fails_closed_when_an_os_app_requires_stream_migration() {
+    let startup = read(repo_root().join("crates/temperpaw/src/startup.rs"));
+
+    assert!(
+        startup.contains("Ok(OsAppReconcileResult::MigrationRequired"),
+        "startup must explicitly handle governed stream migrations"
+    );
+    assert!(
+        startup.contains("requires a governed stream migration"),
+        "the startup error must explain why app activation was fenced"
+    );
+}
+
+#[test]
 fn startup_rehydrates_persisted_verification_after_spec_restore() {
     let root = repo_root();
     let startup = read(root.join("crates/temperpaw/src/startup.rs"));

@@ -1,12 +1,12 @@
 resolver_version = "local-module-sdk/v1"
 root = "paw-agent"
 module = "plan_approval_handler"
-digest = "sha256:124bb3273c5580f498480f4fd854760fd2777fd0f10946c2c7274f32c53807c2"
+digest = "sha256:d4c157a836cc82a4f27f9f8236e142ec9e882a1743ee254f3b57ee55503eb9c9"
 
 [[apps]]
 name = "paw-fs"
 version = "0.1.0"
-metadata_digest = "sha256:89849f1b7c166f667221a59f44a7fe9ce1f2e379e6d2a4f25e65173350670467"
+metadata_digest = "sha256:125b479c0745ab032ea388eb09c6776281f0db3ae4d7a68dd36c4f2159503097"
 dependencies = []
 
 [[apps]]

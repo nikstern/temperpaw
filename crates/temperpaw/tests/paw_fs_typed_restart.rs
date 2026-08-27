@@ -9,6 +9,7 @@ use temper_runtime::tenant::TenantId;
 use temper_server::registry::{
     EntityLevelSummary, EntityVerificationResult, SpecRegistry, VerificationStatus,
 };
+use temper_server::request_context::AgentContext;
 use temper_server::{ServerState, StorageStack, build_router};
 use temper_spec::csdl::parse_csdl;
 use temper_store_turso::TursoEventStore;
@@ -132,26 +133,23 @@ async fn typed_file_client_reads_honest_optional_metadata_after_persistent_resta
     drop(state);
 
     let restarted = build_state("pawfs-after-restart", store, temp.path());
-    let response = app(restarted.clone())
-        .oneshot(
-            Request::get(format!("/tdata/Files('{file_id}')/$value"))
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .expect("restarted PawFS $value read responds");
-    assert_eq!(response.status(), StatusCode::OK);
-    let restarted_content = axum::body::to_bytes(response.into_body(), 1024 * 1024)
-        .await
-        .expect("restarted PawFS content reads");
-    assert_eq!(restarted_content.as_ref(), b"typed restart proof");
-
     let persisted = restarted
         .get_tenant_entity_state(&TenantId::default(), "File", file_id)
         .await
         .expect("File rehydrates from persistent state");
-    assert_eq!(persisted.state.status, "Ready");
     assert_eq!(persisted.state.fields["has_content"], true);
+    let (restart_status, restarted_content) = restarted
+        .get_file_stream_content(
+            &TenantId::default(),
+            file_id,
+            &AgentContext::for_service("pawfs-typed-restart"),
+        )
+        .await
+        .expect("restarted PawFS content reads through the server state boundary");
+    assert_eq!(restart_status, StatusCode::OK.as_u16());
+    assert_eq!(restarted_content.as_slice(), b"typed restart proof");
+
+    assert_eq!(persisted.state.status, "Ready");
     let manifest: ModuleSdkManifest =
         serde_json::from_str(MANIFEST_JSON).expect("generated manifest decodes");
     let file_schema = manifest

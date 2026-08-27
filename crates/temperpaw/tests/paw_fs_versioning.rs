@@ -90,3 +90,13 @@ fn paw_fs_versioning_contract_uses_no_legacy_reactions_file() {
         assert!(csdl.contains(needle), "CSDL should contain {needle}");
     }
 }
+
+#[test]
+fn streamed_files_declare_their_mutability_contract() {
+    let csdl = read(repo_root().join("os-apps/paw-fs/specs/model.csdl.xml"));
+
+    assert!(
+        csdl.contains("<Annotation Term=\"Temper.Vocab.Stream.Mutability\" String=\"Mutable\"/>"),
+        "Paw.FS.File must declare its existing mutable stream behavior"
+    );
+}

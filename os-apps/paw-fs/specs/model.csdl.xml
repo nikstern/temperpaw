@@ -139,6 +139,7 @@
         </Annotation>
         <Annotation Term="Paw.Vocab.StateMachine.InitialState" String="Created"/>
         <Annotation Term="Paw.Vocab.ShardKey" String="WorkspaceId"/>
+        <Annotation Term="Temper.Vocab.Stream.Mutability" String="Mutable"/>
         <Annotation Term="Paw.Vocab.AuthZ.CedarPolicy" String="policies/file.cedar"/>
         <Annotation Term="Paw.Vocab.Agent.Hint" String="File entity with binary stream support. Use PUT $value to upload content, GET $value to download."/>
       </EntityType>

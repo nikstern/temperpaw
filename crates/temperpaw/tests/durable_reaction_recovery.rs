@@ -119,6 +119,7 @@ async fn startup_recovers_source_intent_committed_before_process_exit() {
         source_sequence: 1,
         source_to_state: "Confirmed".to_string(),
         source_fields: serde_json::json!({}),
+        source_stream_descriptor: None,
         guard_passed: true,
         target_entity_id: Some("order-1".to_string()),
         trigger_name: rule.name.clone(),
@@ -154,6 +155,7 @@ async fn startup_recovers_source_intent_committed_before_process_exit() {
                     correlation_id: sim_uuid(),
                     timestamp: sim_now(),
                     actor_id: format!("{tenant_name}:Order:order-1"),
+                    kernel: None,
                 },
             }],
         )

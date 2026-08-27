@@ -1964,6 +1964,22 @@ pub async fn run(mut config: Config, force_soul_setup: bool) -> Result<()> {
                 record_os_app_reconcile(app_name, "installed", app_started.elapsed());
                 tracing::info!("  Reconciled {app_name}: {install:?}");
             }
+            Ok(OsAppReconcileResult::MigrationRequired {
+                semantic_digest,
+                capability_digest,
+                descriptor_contract_version,
+                ..
+            }) => {
+                record_os_app_reconcile(app_name, "migration_required", app_started.elapsed());
+                let error = format!(
+                    "{app_name} requires a governed stream migration before activation \
+                     (semantic_digest={semantic_digest}, \
+                     capability_digest={capability_digest}, \
+                     descriptor_contract_version={descriptor_contract_version})"
+                );
+                tracing::error!("  {error}");
+                reconcile_errors.push(error);
+            }
             Err(error) => {
                 record_os_app_reconcile(app_name, "error", app_started.elapsed());
                 tracing::error!("  Failed to reconcile {app_name}: {error}");
