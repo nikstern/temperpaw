@@ -1,0 +1,33 @@
+[automaton]
+name = "FailureRouteProbe"
+states = ["Idle", "Running", "Succeeded", "Failed"]
+initial = "Idle"
+
+[[action]]
+name = "Run"
+kind = "input"
+from = ["Idle"]
+to = "Running"
+
+[[action.triggers]]
+name = "missing_probe"
+kind = "wasm"
+module = "missing_probe"
+on_success = "Succeed"
+
+[[action.triggers.failure_routes]]
+category = "integrity"
+action = "Fail"
+
+[[action]]
+name = "Succeed"
+kind = "input"
+from = ["Running"]
+to = "Succeeded"
+
+[[action]]
+name = "Fail"
+kind = "input"
+from = ["Running"]
+to = "Failed"
+params = [{ name = "failure", type = "failure_v1" }]

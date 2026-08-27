@@ -32,7 +32,7 @@ const PAWFS_CSDL: &str = include_str!("../../../os-apps/paw-fs/specs/model.csdl.
 const FILE_IOA: &str = include_str!("../../../os-apps/paw-fs/specs/file.ioa.toml");
 const FILE_VERSION_IOA: &str = include_str!("../../../os-apps/paw-fs/specs/file_version.ioa.toml");
 const WORKSPACE_IOA: &str = include_str!("../../../os-apps/paw-fs/specs/workspace.ioa.toml");
-const TEMPER_REVISION: &str = "f0c431ed0b2a19e3f7834a95cba884ad15085651";
+const TEMPER_REVISION: &str = "e3dfe852e7a7373cef8bddfe2e3b8bcad8f94a0a";
 
 async fn authenticate(
     mut request: axum::extract::Request,

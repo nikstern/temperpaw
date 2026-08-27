@@ -1,0 +1,31 @@
+[automaton]
+name = "FailureRouteProbe"
+states = ["Idle", "Running", "Succeeded", "Failed"]
+initial = "Idle"
+
+[[action]]
+name = "Run"
+kind = "input"
+from = ["Idle"]
+to = "Running"
+effect = "trigger missing_probe"
+
+[[action]]
+name = "Succeed"
+kind = "input"
+from = ["Running"]
+to = "Succeeded"
+
+[[action]]
+name = "Fail"
+kind = "input"
+from = ["Running"]
+to = "Failed"
+
+[[integration]]
+name = "missing_probe"
+trigger = "missing_probe"
+type = "wasm"
+module = "missing_probe"
+on_success = "Succeed"
+on_failure = "Fail"
