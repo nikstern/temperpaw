@@ -1964,6 +1964,32 @@ fn startup_rehydrates_os_app_verification_for_unchanged_apps() {
 }
 
 #[test]
+fn startup_fails_closed_with_actionable_stream_migration_evidence() {
+    let startup = read(repo_root().join("crates/temperpaw/src/startup.rs"));
+
+    let migration_start = startup
+        .find("Ok(OsAppReconcileResult::MigrationRequired")
+        .expect("startup should handle governed stream migration requirements");
+    let error_start = startup[migration_start..]
+        .find("Err(error)")
+        .map(|offset| migration_start + offset)
+        .expect("migration handling should precede generic reconcile errors");
+    let migration_branch = &startup[migration_start..error_start];
+
+    for needle in [
+        "record_os_app_reconcile(app_name, \"migration_required\"",
+        "semantic_digest",
+        "capability_digest",
+        "descriptor_contract_version",
+    ] {
+        assert!(
+            migration_branch.contains(needle),
+            "migration-required startup failure should retain actionable evidence: {needle}"
+        );
+    }
+}
+
+#[test]
 fn startup_rehydrates_persisted_verification_after_spec_restore() {
     let root = repo_root();
     let startup = read(root.join("crates/temperpaw/src/startup.rs"));
