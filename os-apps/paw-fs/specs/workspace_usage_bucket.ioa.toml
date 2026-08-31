@@ -25,7 +25,11 @@ name = "Create"
 kind = "input"
 from = ["Active"]
 to = "Active"
-params = ["workspace_id", "bucket_key", "artifact_batch_id"]
+params = [
+  "workspace_id",
+  "bucket_key",
+  { name = "artifact_batch_id", type = "Edm.Guid", nullable = true },
+]
 hint = "Create or identify a bounded usage bucket for a workspace."
 
 [[action]]
@@ -33,7 +37,13 @@ name = "ApplyDelta"
 kind = "input"
 from = ["Active"]
 to = "Active"
-params = ["workspace_id", "bucket_key", "artifact_batch_id", "bytes_delta", "file_delta"]
+params = [
+  "workspace_id",
+  "bucket_key",
+  { name = "artifact_batch_id", type = "Edm.Guid", nullable = true },
+  "bytes_delta",
+  "file_delta",
+]
 effect = [
   { type = "increment", var = "bytes_delta", amount = "bytes_delta" },
   { type = "increment", var = "file_delta", amount = "file_delta" },
