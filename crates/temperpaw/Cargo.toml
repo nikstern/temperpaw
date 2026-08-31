@@ -78,6 +78,7 @@ cliclack = "0.3"
 
 [dev-dependencies]
 tempfile = "3"
+roxmltree = "0.20"
 temper-spec = { git = "https://github.com/nikstern/temper.git", rev = "e3dfe852e7a7373cef8bddfe2e3b8bcad8f94a0a" }
 temper-server = { git = "https://github.com/nikstern/temper.git", rev = "e3dfe852e7a7373cef8bddfe2e3b8bcad8f94a0a", features = ["test-helpers"] }
 temper-wasm-sdk = { git = "https://github.com/nikstern/temper.git", rev = "e3dfe852e7a7373cef8bddfe2e3b8bcad8f94a0a", features = ["test-helpers"] }
