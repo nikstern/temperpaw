@@ -235,7 +235,7 @@
       <Action Name="UpdateQuota" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
         <Parameter Name="quota_limit" Type="Edm.Int64" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
         <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
           <Collection><String>Active</String></Collection>
         </Annotation>
@@ -244,7 +244,7 @@
       <Action Name="IncrementUsage" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
         <Parameter Name="size_bytes" Type="Edm.Int64" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
         <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
           <Collection><String>Active</String></Collection>
         </Annotation>
@@ -253,7 +253,7 @@
       <Action Name="DecrementUsage" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
         <Parameter Name="size_bytes" Type="Edm.Int64" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
         <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
           <Collection><String>Active</String></Collection>
         </Annotation>
@@ -261,7 +261,7 @@
 
       <Action Name="Freeze" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
         <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
           <Collection><String>Active</String></Collection>
         </Annotation>
@@ -270,7 +270,7 @@
 
       <Action Name="Thaw" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
         <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
           <Collection><String>Frozen</String></Collection>
         </Annotation>
@@ -281,7 +281,7 @@
       <Action Name="MkDir" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
         <Parameter Name="path" Type="Edm.String" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
         <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
           <Collection><String>Active</String></Collection>
         </Annotation>
@@ -292,7 +292,7 @@
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
         <Parameter Name="path" Type="Edm.String" Nullable="false"/>
         <Parameter Name="mime_type" Type="Edm.String" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
         <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
           <Collection><String>Active</String></Collection>
         </Annotation>
@@ -302,7 +302,7 @@
       <Action Name="ResolvePath" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
         <Parameter Name="path" Type="Edm.String" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
         <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
           <Collection><String>Active</String></Collection>
         </Annotation>
@@ -312,7 +312,7 @@
       <Action Name="ListDir" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
         <Parameter Name="path" Type="Edm.String" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
         <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
           <Collection><String>Active</String></Collection>
         </Annotation>
@@ -322,7 +322,7 @@
       <Action Name="DeleteFile" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
         <Parameter Name="path" Type="Edm.String" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
         <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
           <Collection><String>Active</String></Collection>
         </Annotation>
@@ -333,7 +333,7 @@
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
         <Parameter Name="path" Type="Edm.String" Nullable="false"/>
         <Parameter Name="new_path" Type="Edm.String" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
         <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
           <Collection><String>Active</String></Collection>
         </Annotation>
@@ -343,7 +343,7 @@
       <!-- Directory Actions -->
       <Action Name="AddChild" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Directory" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Directory"/>
+        <ReturnType Type="Paw.FS.Directory" Nullable="false"/>
         <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
           <Collection><String>Active</String></Collection>
         </Annotation>
@@ -351,7 +351,7 @@
 
       <Action Name="RemoveChild" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Directory" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Directory"/>
+        <ReturnType Type="Paw.FS.Directory" Nullable="false"/>
         <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
           <Collection><String>Active</String></Collection>
         </Annotation>
@@ -366,7 +366,7 @@
         <Parameter Name="version_number" Type="Edm.Int32" Nullable="false"/>
         <Parameter Name="previous_version_id" Type="Edm.Guid" Nullable="false"/>
         <Parameter Name="created_by" Type="Edm.String" Nullable="false"/>
-        <ReturnType Type="Paw.FS.File"/>
+        <ReturnType Type="Paw.FS.File" Nullable="false"/>
         <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
           <Collection><String>Created</String><String>Ready</String></Collection>
         </Annotation>
@@ -376,7 +376,7 @@
 
       <Action Name="Lock" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.File" Nullable="false"/>
-        <ReturnType Type="Paw.FS.File"/>
+        <ReturnType Type="Paw.FS.File" Nullable="false"/>
         <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
           <Collection><String>Ready</String></Collection>
         </Annotation>
@@ -385,7 +385,7 @@
 
       <Action Name="Unlock" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.File" Nullable="false"/>
-        <ReturnType Type="Paw.FS.File"/>
+        <ReturnType Type="Paw.FS.File" Nullable="false"/>
         <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
           <Collection><String>Locked</String></Collection>
         </Annotation>
@@ -395,7 +395,7 @@
       <Action Name="RecordVersion" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.File" Nullable="false"/>
         <Parameter Name="last_version_id" Type="Edm.Guid" Nullable="false"/>
-        <ReturnType Type="Paw.FS.File"/>
+        <ReturnType Type="Paw.FS.File" Nullable="false"/>
         <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
           <Collection><String>Ready</String></Collection>
         </Annotation>
@@ -405,7 +405,7 @@
       <!-- FileVersion Actions -->
       <Action Name="Supersede" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.FileVersion" Nullable="false"/>
-        <ReturnType Type="Paw.FS.FileVersion"/>
+        <ReturnType Type="Paw.FS.FileVersion" Nullable="false"/>
         <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
           <Collection><String>Current</String></Collection>
         </Annotation>
@@ -419,12 +419,12 @@
         <Parameter Name="files_manifest" Type="Edm.String" Nullable="false"/>
         <Parameter Name="submitted_by" Type="Edm.String" Nullable="false"/>
         <Parameter Name="file_count" Type="Edm.Int32" Nullable="false"/>
-        <ReturnType Type="Paw.FS.ArtifactBatch"/>
+        <ReturnType Type="Paw.FS.ArtifactBatch" Nullable="false"/>
       </Action>
 
       <Action Name="Apply" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.ArtifactBatch" Nullable="false"/>
-        <ReturnType Type="Paw.FS.ArtifactBatch"/>
+        <ReturnType Type="Paw.FS.ArtifactBatch" Nullable="false"/>
       </Action>
 
       <Action Name="RecordFileApplied" IsBound="true">
@@ -432,26 +432,26 @@
         <Parameter Name="path" Type="Edm.String" Nullable="false"/>
         <Parameter Name="file_id" Type="Edm.Guid" Nullable="false"/>
         <Parameter Name="size_bytes" Type="Edm.Int64" Nullable="false"/>
-        <ReturnType Type="Paw.FS.ArtifactBatch"/>
+        <ReturnType Type="Paw.FS.ArtifactBatch" Nullable="false"/>
       </Action>
 
       <Action Name="RecordFileFailed" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.ArtifactBatch" Nullable="false"/>
         <Parameter Name="path" Type="Edm.String" Nullable="false"/>
         <Parameter Name="error" Type="Edm.String" Nullable="false"/>
-        <ReturnType Type="Paw.FS.ArtifactBatch"/>
+        <ReturnType Type="Paw.FS.ArtifactBatch" Nullable="false"/>
       </Action>
 
       <Action Name="Complete" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.ArtifactBatch" Nullable="false"/>
         <Parameter Name="usage_bucket_id" Type="Edm.Guid" Nullable="false"/>
-        <ReturnType Type="Paw.FS.ArtifactBatch"/>
+        <ReturnType Type="Paw.FS.ArtifactBatch" Nullable="false"/>
       </Action>
 
       <Action Name="Fail" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.ArtifactBatch" Nullable="false"/>
         <Parameter Name="error" Type="Edm.String" Nullable="false"/>
-        <ReturnType Type="Paw.FS.ArtifactBatch"/>
+        <ReturnType Type="Paw.FS.ArtifactBatch" Nullable="false"/>
       </Action>
 
       <!-- WorkspaceUsageBucket Actions -->
@@ -462,12 +462,12 @@
         <Parameter Name="artifact_batch_id" Type="Edm.Guid"/>
         <Parameter Name="bytes_delta" Type="Edm.Int64" Nullable="false"/>
         <Parameter Name="file_delta" Type="Edm.Int64" Nullable="false"/>
-        <ReturnType Type="Paw.FS.WorkspaceUsageBucket"/>
+        <ReturnType Type="Paw.FS.WorkspaceUsageBucket" Nullable="false"/>
       </Action>
 
       <Action Name="Seal" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.WorkspaceUsageBucket" Nullable="false"/>
-        <ReturnType Type="Paw.FS.WorkspaceUsageBucket"/>
+        <ReturnType Type="Paw.FS.WorkspaceUsageBucket" Nullable="false"/>
       </Action>
 
       <!-- Exact callable IOA action twins (ADR-004) -->
@@ -477,19 +477,19 @@
         <Parameter Name="path" Type="Edm.String" Nullable="false"/>
         <Parameter Name="parent_id" Type="Edm.Guid"/>
         <Parameter Name="workspace_id" Type="Edm.Guid" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Directory"/>
+        <ReturnType Type="Paw.FS.Directory" Nullable="false"/>
       </Action>
 
       <Action Name="Rename" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Directory" Nullable="false"/>
         <Parameter Name="name" Type="Edm.String" Nullable="false"/>
         <Parameter Name="path" Type="Edm.String" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Directory"/>
+        <ReturnType Type="Paw.FS.Directory" Nullable="false"/>
       </Action>
 
       <Action Name="Archive" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Directory" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Directory"/>
+        <ReturnType Type="Paw.FS.Directory" Nullable="false"/>
       </Action>
 
       <Action Name="Create" IsBound="true">
@@ -499,12 +499,12 @@
         <Parameter Name="directory_id" Type="Edm.Guid" Nullable="false"/>
         <Parameter Name="workspace_id" Type="Edm.Guid" Nullable="false"/>
         <Parameter Name="mime_type" Type="Edm.String" Nullable="false"/>
-        <ReturnType Type="Paw.FS.File"/>
+        <ReturnType Type="Paw.FS.File" Nullable="false"/>
       </Action>
 
       <Action Name="Archive" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.File" Nullable="false"/>
-        <ReturnType Type="Paw.FS.File"/>
+        <ReturnType Type="Paw.FS.File" Nullable="false"/>
       </Action>
 
       <Action Name="Create" IsBound="true">
@@ -516,76 +516,76 @@
         <Parameter Name="size_bytes" Type="Edm.Int64" Nullable="false"/>
         <Parameter Name="previous_version_id" Type="Edm.Guid" Nullable="false"/>
         <Parameter Name="created_by" Type="Edm.String" Nullable="false"/>
-        <ReturnType Type="Paw.FS.FileVersion"/>
+        <ReturnType Type="Paw.FS.FileVersion" Nullable="false"/>
       </Action>
 
       <Action Name="Create" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
         <Parameter Name="name" Type="Edm.String" Nullable="false"/>
         <Parameter Name="quota_limit" Type="Edm.Int64" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
       </Action>
 
       <Action Name="IncrementFileCount" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
       </Action>
 
       <Action Name="DecrementFileCount" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
       </Action>
 
       <Action Name="Archive" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
       </Action>
 
       <Action Name="DirCreated" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
         <Parameter Name="last_dir_id" Type="Edm.Guid" Nullable="false"/>
         <Parameter Name="last_dir_path" Type="Edm.String" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
       </Action>
 
       <Action Name="FileCreated" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
         <Parameter Name="last_file_id" Type="Edm.Guid" Nullable="false"/>
         <Parameter Name="last_file_path" Type="Edm.String" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
       </Action>
 
       <Action Name="PathResolved" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
         <Parameter Name="last_file_id" Type="Edm.Guid" Nullable="false"/>
         <Parameter Name="last_file_path" Type="Edm.String" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
       </Action>
 
       <Action Name="DirListed" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
         <Parameter Name="last_listing" Type="Edm.String" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
       </Action>
 
       <Action Name="FileDeleted" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
         <Parameter Name="last_file_id" Type="Edm.Guid" Nullable="false"/>
         <Parameter Name="last_file_path" Type="Edm.String" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
       </Action>
 
       <Action Name="FileRenamed" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
         <Parameter Name="last_file_id" Type="Edm.Guid" Nullable="false"/>
         <Parameter Name="last_file_path" Type="Edm.String" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
       </Action>
 
       <Action Name="FsOperationFailed" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
         <Parameter Name="last_file_id" Type="Edm.String" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
+        <ReturnType Type="Paw.FS.Workspace" Nullable="false"/>
       </Action>
 
       <Action Name="Create" IsBound="true">
@@ -593,7 +593,7 @@
         <Parameter Name="workspace_id" Type="Edm.Guid" Nullable="false"/>
         <Parameter Name="bucket_key" Type="Edm.String" Nullable="false"/>
         <Parameter Name="artifact_batch_id" Type="Edm.Guid"/>
-        <ReturnType Type="Paw.FS.WorkspaceUsageBucket"/>
+        <ReturnType Type="Paw.FS.WorkspaceUsageBucket" Nullable="false"/>
       </Action>
 
       <!-- ============ Entity Container ============ -->

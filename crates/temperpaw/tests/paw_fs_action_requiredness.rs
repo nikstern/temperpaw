@@ -192,3 +192,33 @@ fn every_paw_fs_automaton_declares_its_canonical_lifecycle_property() {
         );
     }
 }
+
+#[test]
+fn every_paw_fs_action_returns_one_authoritative_entity() {
+    let csdl = fs::read_to_string(repo_root().join("os-apps/paw-fs/specs/model.csdl.xml"))
+        .expect("read paw-fs CSDL");
+    let document = roxmltree::Document::parse(&csdl).expect("paw-fs CSDL should parse");
+
+    for action in document
+        .descendants()
+        .filter(|node| node.has_tag_name("Action") && node.attribute("IsBound") == Some("true"))
+    {
+        let binding_type = action
+            .children()
+            .find(|node| node.has_tag_name("Parameter"))
+            .and_then(|node| node.attribute("Type"))
+            .expect("bound action needs a binding type");
+        let result = action
+            .children()
+            .find(|node| node.has_tag_name("ReturnType"))
+            .unwrap_or_else(|| panic!("{} needs an entity result", action.attribute("Name").unwrap()));
+
+        assert_eq!(result.attribute("Type"), Some(binding_type));
+        assert_eq!(
+            result.attribute("Nullable"),
+            Some("false"),
+            "{} return cardinality must be exactly one",
+            action.attribute("Name").expect("action name")
+        );
+    }
+}

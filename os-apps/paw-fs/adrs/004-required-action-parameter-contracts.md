@@ -30,6 +30,9 @@ aliases absent from IOA. The legacy `WorkspaceArchive`, `DirectoryRename`,
 policies use the canonical `Archive` and `Rename` names instead. Every PawFS
 automaton explicitly identifies `Status` as its lifecycle property so bundle
 v2 never infers lifecycle state from a structurally similar field.
+Every callable action return is the non-null bound entity. This makes the
+authoritative post-transition state cardinality explicit instead of treating a
+successful action result as optional.
 
 PawFS has exactly three intentionally nullable action inputs:
 
@@ -53,6 +56,8 @@ implicit defaults as an absence contract.
   absences as options.
 - Missing or explicit-null required inputs are rejected before a transition,
   event append, trigger, lifecycle change, state mutation, or external effect.
+- Generated clients return one authoritative entity and its commit evidence
+  for every successful PawFS action.
 - Nullable-to-required schema upgrades are breaking and must regenerate their
   typed SDK closures and WASM artifacts.
 - Legacy action aliases outside IOA fail the closure contract instead of
