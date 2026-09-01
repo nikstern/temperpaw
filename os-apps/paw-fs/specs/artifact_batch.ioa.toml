@@ -8,6 +8,7 @@
 name = "ArtifactBatch"
 states = ["Submitted", "Applying", "Completed", "Failed"]
 initial = "Submitted"
+lifecycle_property = "Status"
 allow_indefinite_states = ["Submitted", "Applying"]
 
 [[state]]

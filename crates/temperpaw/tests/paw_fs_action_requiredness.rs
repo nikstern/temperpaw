@@ -158,3 +158,31 @@ fn paw_fs_optional_action_inputs_are_explicit_and_exhaustive() {
 
     assert_eq!(actual, expected);
 }
+
+#[test]
+fn every_paw_fs_automaton_declares_its_canonical_lifecycle_property() {
+    let specs_dir = repo_root().join("os-apps/paw-fs/specs");
+
+    for entry in fs::read_dir(&specs_dir).expect("read paw-fs specs") {
+        let path = entry.expect("spec directory entry").path();
+        if !path
+            .file_name()
+            .and_then(|name| name.to_str())
+            .is_some_and(|name| name.ends_with(".ioa.toml"))
+        {
+            continue;
+        }
+        let source = fs::read_to_string(&path)
+            .unwrap_or_else(|error| panic!("read {}: {error}", path.display()));
+        let spec = source
+            .parse::<toml::Value>()
+            .unwrap_or_else(|error| panic!("parse {}: {error}", path.display()));
+
+        assert_eq!(
+            spec["automaton"]["lifecycle_property"].as_str(),
+            Some("Status"),
+            "{} must identify the CSDL lifecycle property for canonical bundle v2",
+            path.display()
+        );
+    }
+}
