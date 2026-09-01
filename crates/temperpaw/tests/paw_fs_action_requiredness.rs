@@ -133,6 +133,12 @@ fn every_callable_paw_fs_action_has_an_exact_requiredness_twin() {
             "{entity}.{action} IOA/CSDL parameter names and nullability must match"
         );
     }
+
+    assert_eq!(
+        csdl_contracts.keys().collect::<BTreeSet<_>>(),
+        ioa_contracts.keys().collect::<BTreeSet<_>>(),
+        "PawFS CSDL must not retain callable aliases outside authoritative IOA behavior"
+    );
 }
 
 #[test]

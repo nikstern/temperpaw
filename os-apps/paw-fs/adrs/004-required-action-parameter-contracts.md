@@ -1,9 +1,10 @@
-# ADR-004: Required Action Parameter Contracts
+# ADR-004: Canonical Action and Parameter Contracts
 
 - Status: Accepted
 - Date: 2026-08-31
 - Scope: `paw-fs`
-- Related: Temper ADR-0193, TemperPaw issue #22
+- Related: Temper ADR-0193, Temper ADR-0194, TemperPaw issue #22,
+  ARC-AGI Temper issue #36
 
 ## Context
 
@@ -22,6 +23,13 @@ and runtime validation disagree about the PawFS action ABI.
 Every callable PawFS IOA action has an exact bound CSDL twin. Every binding is
 non-nullable. Plain IOA parameters remain required and their CSDL parameters
 declare `Nullable="false"`.
+
+IOA is also the complete callable action authority: CSDL must not retain bound
+aliases absent from IOA. The legacy `WorkspaceArchive`, `DirectoryRename`,
+`DirectoryArchive`, and `FileArchive` aliases are removed. Internal callers and
+policies use the canonical `Archive` and `Rename` names instead. Every PawFS
+automaton explicitly identifies `Status` as its lifecycle property so bundle
+v2 never infers lifecycle state from a structurally similar field.
 
 PawFS has exactly three intentionally nullable action inputs:
 
@@ -47,5 +55,5 @@ implicit defaults as an absence contract.
   event append, trigger, lifecycle change, state mutation, or external effect.
 - Nullable-to-required schema upgrades are breaking and must regenerate their
   typed SDK closures and WASM artifacts.
-- The legacy FUSE-bound action aliases remain for compatibility, but exact
-  callable IOA twins are authoritative for verification.
+- Legacy action aliases outside IOA fail the closure contract instead of
+  silently competing with canonical behavior.

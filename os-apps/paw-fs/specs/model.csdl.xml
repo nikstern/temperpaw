@@ -277,15 +277,6 @@
         <Annotation Term="Paw.Vocab.StateMachine.TargetState" String="Active"/>
       </Action>
 
-      <Action Name="WorkspaceArchive" IsBound="true">
-        <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Workspace"/>
-        <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
-          <Collection><String>Active</String><String>Frozen</String></Collection>
-        </Annotation>
-        <Annotation Term="Paw.Vocab.StateMachine.TargetState" String="Archived"/>
-      </Action>
-
       <!-- Filesystem Actions (FUSE-mapped, bound to Workspace) -->
       <Action Name="MkDir" IsBound="true">
         <Parameter Name="bindingParameter" Type="Paw.FS.Workspace" Nullable="false"/>
@@ -335,7 +326,7 @@
         <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
           <Collection><String>Active</String></Collection>
         </Annotation>
-        <Annotation Term="Paw.Vocab.Agent.Hint" String="Archive file at path (unlink). Dispatches FileArchive on the resolved file entity."/>
+        <Annotation Term="Paw.Vocab.Agent.Hint" String="Archive file at path (unlink). Dispatches Archive on the resolved file entity."/>
       </Action>
 
       <Action Name="Rename" IsBound="true">
@@ -364,25 +355,6 @@
         <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
           <Collection><String>Active</String></Collection>
         </Annotation>
-      </Action>
-
-      <Action Name="DirectoryRename" IsBound="true">
-        <Parameter Name="bindingParameter" Type="Paw.FS.Directory" Nullable="false"/>
-        <Parameter Name="name" Type="Edm.String" Nullable="false"/>
-        <Parameter Name="path" Type="Edm.String" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Directory"/>
-        <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
-          <Collection><String>Active</String></Collection>
-        </Annotation>
-      </Action>
-
-      <Action Name="DirectoryArchive" IsBound="true">
-        <Parameter Name="bindingParameter" Type="Paw.FS.Directory" Nullable="false"/>
-        <ReturnType Type="Paw.FS.Directory"/>
-        <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
-          <Collection><String>Active</String></Collection>
-        </Annotation>
-        <Annotation Term="Paw.Vocab.StateMachine.TargetState" String="Archived"/>
       </Action>
 
       <!-- File Actions -->
@@ -418,15 +390,6 @@
           <Collection><String>Locked</String></Collection>
         </Annotation>
         <Annotation Term="Paw.Vocab.StateMachine.TargetState" String="Ready"/>
-      </Action>
-
-      <Action Name="FileArchive" IsBound="true">
-        <Parameter Name="bindingParameter" Type="Paw.FS.File" Nullable="false"/>
-        <ReturnType Type="Paw.FS.File"/>
-        <Annotation Term="Paw.Vocab.StateMachine.ValidFromStates">
-          <Collection><String>Ready</String><String>Locked</String></Collection>
-        </Annotation>
-        <Annotation Term="Paw.Vocab.StateMachine.TargetState" String="Archived"/>
       </Action>
 
       <Action Name="RecordVersion" IsBound="true">
