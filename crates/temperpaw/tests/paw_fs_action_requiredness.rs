@@ -211,7 +211,12 @@ fn every_paw_fs_action_returns_one_authoritative_entity() {
         let result = action
             .children()
             .find(|node| node.has_tag_name("ReturnType"))
-            .unwrap_or_else(|| panic!("{} needs an entity result", action.attribute("Name").unwrap()));
+            .unwrap_or_else(|| {
+                panic!(
+                    "{} needs an entity result",
+                    action.attribute("Name").unwrap()
+                )
+            });
 
         assert_eq!(result.attribute("Type"), Some(binding_type));
         assert_eq!(
