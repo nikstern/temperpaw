@@ -133,6 +133,12 @@ fn every_callable_paw_fs_action_has_an_exact_requiredness_twin() {
             "{entity}.{action} IOA/CSDL parameter names and nullability must match"
         );
     }
+
+    assert_eq!(
+        csdl_contracts.keys().collect::<BTreeSet<_>>(),
+        ioa_contracts.keys().collect::<BTreeSet<_>>(),
+        "PawFS CSDL must not retain callable aliases outside authoritative IOA behavior"
+    );
 }
 
 #[test]
@@ -157,4 +163,67 @@ fn paw_fs_optional_action_inputs_are_explicit_and_exhaustive() {
     .collect();
 
     assert_eq!(actual, expected);
+}
+
+#[test]
+fn every_paw_fs_automaton_declares_its_canonical_lifecycle_property() {
+    let specs_dir = repo_root().join("os-apps/paw-fs/specs");
+
+    for entry in fs::read_dir(&specs_dir).expect("read paw-fs specs") {
+        let path = entry.expect("spec directory entry").path();
+        if !path
+            .file_name()
+            .and_then(|name| name.to_str())
+            .is_some_and(|name| name.ends_with(".ioa.toml"))
+        {
+            continue;
+        }
+        let source = fs::read_to_string(&path)
+            .unwrap_or_else(|error| panic!("read {}: {error}", path.display()));
+        let spec = source
+            .parse::<toml::Value>()
+            .unwrap_or_else(|error| panic!("parse {}: {error}", path.display()));
+
+        assert_eq!(
+            spec["automaton"]["lifecycle_property"].as_str(),
+            Some("Status"),
+            "{} must identify the CSDL lifecycle property for canonical bundle v2",
+            path.display()
+        );
+    }
+}
+
+#[test]
+fn every_paw_fs_action_returns_one_authoritative_entity() {
+    let csdl = fs::read_to_string(repo_root().join("os-apps/paw-fs/specs/model.csdl.xml"))
+        .expect("read paw-fs CSDL");
+    let document = roxmltree::Document::parse(&csdl).expect("paw-fs CSDL should parse");
+
+    for action in document
+        .descendants()
+        .filter(|node| node.has_tag_name("Action") && node.attribute("IsBound") == Some("true"))
+    {
+        let binding_type = action
+            .children()
+            .find(|node| node.has_tag_name("Parameter"))
+            .and_then(|node| node.attribute("Type"))
+            .expect("bound action needs a binding type");
+        let result = action
+            .children()
+            .find(|node| node.has_tag_name("ReturnType"))
+            .unwrap_or_else(|| {
+                panic!(
+                    "{} needs an entity result",
+                    action.attribute("Name").unwrap()
+                )
+            });
+
+        assert_eq!(result.attribute("Type"), Some(binding_type));
+        assert_eq!(
+            result.attribute("Nullable"),
+            Some("false"),
+            "{} return cardinality must be exactly one",
+            action.attribute("Name").expect("action name")
+        );
+    }
 }

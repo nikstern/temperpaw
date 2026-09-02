@@ -350,7 +350,7 @@ pub fn delete_file(
     // Archive the file.
     http_post(
         ctx,
-        &format!("{api_url}/tdata/Files('{file_id}')/Temper.FileArchive"),
+        &format!("{api_url}/tdata/Files('{file_id}')/Temper.Archive"),
         tenant,
         &json!({}),
     )?;

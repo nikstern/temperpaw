@@ -65,7 +65,7 @@ forbid(
 // Archive requires workspace admin
 permit(
     principal is Agent,
-    action == Action::"FileArchive",
+    action == Action::"Archive",
     resource is File
 ) when {
     principal in Group::"WorkspaceAdmins" && resource.workspaceId == principal.workspaceid

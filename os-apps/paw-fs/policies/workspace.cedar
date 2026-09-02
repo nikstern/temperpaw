@@ -40,14 +40,14 @@ permit(
 // Agents can manage directories (addchild, create, rename)
 permit(
     principal is Agent,
-    action in [Action::"read", Action::"list", Action::"Create", Action::"create", Action::"AddChild", Action::"RemoveChild", Action::"DirectoryRename", Action::"DirectoryArchive"],
+    action in [Action::"read", Action::"list", Action::"Create", Action::"create", Action::"AddChild", Action::"RemoveChild", Action::"Rename", Action::"Archive"],
     resource is Directory
 );
 
 // Only workspace admins can freeze, thaw, or archive
 permit(
     principal is Agent,
-    action in [Action::"Freeze", Action::"Thaw", Action::"WorkspaceArchive"],
+    action in [Action::"Freeze", Action::"Thaw", Action::"Archive"],
     resource is Workspace
 ) when {
     principal in Group::"WorkspaceAdmins" && resource.id == principal.workspaceid

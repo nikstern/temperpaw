@@ -8,6 +8,7 @@
 name = "File"
 states = ["Created", "Ready", "Locked", "Archived"]
 initial = "Created"
+lifecycle_property = "Status"
 
 # ADR-0050 migration TODO: each state below needs either a
 # [[state_timeout]] declaration or a domain-specific justification

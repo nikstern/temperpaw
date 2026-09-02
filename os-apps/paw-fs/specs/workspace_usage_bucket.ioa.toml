@@ -8,6 +8,7 @@
 name = "WorkspaceUsageBucket"
 states = ["Active", "Sealed"]
 initial = "Active"
+lifecycle_property = "Status"
 allow_indefinite_states = ["Active"]
 
 [[state]]
